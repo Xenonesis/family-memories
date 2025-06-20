@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef } from 'react';
 import Spline from '@splinetool/react-spline';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Plus, Phone } from 'lucide-react';
 
@@ -73,13 +74,15 @@ function HeroContent() {
           Create beautiful collections of your precious moments and share them with your loved ones
         </p>
         <div className="flex pointer-events-auto flex-col sm:flex-row items-start space-y-3 sm:space-y-0 sm:space-x-3">
-          <Button 
-            variant="outline" 
-            className="border-white text-white font-semibold py-2.5 sm:py-3.5 px-6 sm:px-8 rounded-2xl transition duration-300 w-full sm:w-auto hover:bg-white hover:text-black bg-transparent"
-          >
-            <Phone className="w-4 h-4 mr-2" />
-            Contact Us
-          </Button>
+          <Link href="/contact">
+            <Button 
+              variant="outline" 
+              className="border-white text-white font-semibold py-2.5 sm:py-3.5 px-6 sm:px-8 rounded-2xl transition duration-300 w-full sm:w-auto hover:bg-white hover:text-black bg-transparent"
+            >
+              <Phone className="w-4 h-4 mr-2" />
+              Contact Us
+            </Button>
+          </Link>
           <Button 
             className="pointer-events-auto bg-white text-black font-semibold py-2.5 sm:py-3.5 px-6 sm:px-8 rounded-2xl transition duration-300 hover:scale-105 flex items-center justify-center w-full sm:w-auto"
           >
@@ -104,20 +107,21 @@ function HeroNavbar() {
           </div>
 
           <div className="hidden md:flex items-center space-x-6">
-            <a href="#" className="text-gray-300 hover:text-white text-sm transition duration-150">Home</a>
-            <a href="#" className="text-gray-300 hover:text-white text-sm transition duration-150">Gallery</a>
-            <a href="#" className="text-gray-300 hover:text-white text-sm transition duration-150">Memories</a>
-            <a href="#" className="text-gray-300 hover:text-white text-sm transition duration-150">About</a>
+            <Link href="/" className="text-gray-300 hover:text-white text-sm transition duration-150">Home</Link>
+            <Link href="/about" className="text-gray-300 hover:text-white text-sm transition duration-150">About</Link>
+            <Link href="/contact" className="text-gray-300 hover:text-white text-sm transition duration-150">Contact</Link>
           </div>
         </div>
 
         <div className="flex items-center">
-          <Button 
-            variant="outline" 
-            className="border-white text-white px-5 py-2 rounded-full text-sm hover:bg-white hover:text-black transition duration-300 bg-transparent"
-          >
-            Let&apos;s Talk!
-          </Button>
+          <Link href="/contact">
+            <Button 
+              variant="outline" 
+              className="border-white text-white px-5 py-2 rounded-full text-sm hover:bg-white hover:text-black transition duration-300 bg-transparent"
+            >
+              Let&apos;s Talk!
+            </Button>
+          </Link>
         </div>
       </div>
     </nav>

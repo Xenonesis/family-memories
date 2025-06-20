@@ -128,6 +128,20 @@ export function Navbar() {
                   </Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
+              <NavigationMenuItem>
+                <NavigationMenuLink asChild>
+                  <Link href="/about" className={navigationMenuTriggerStyle()}>
+                    About
+                  </Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+              <NavigationMenuItem>
+                <NavigationMenuLink asChild>
+                  <Link href="/contact" className={navigationMenuTriggerStyle()}>
+                    Contact
+                  </Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
             </NavigationMenuList>
           </NavigationMenu>
           <ThemeToggle />
@@ -179,6 +193,20 @@ export function Navbar() {
               onClick={() => setIsOpen(false)}
             >
               Documentation
+            </Link>
+            <Link
+              href="/about"
+              className="block py-2 text-sm font-medium hover:text-primary transition-colors"
+              onClick={() => setIsOpen(false)}
+            >
+              About
+            </Link>
+            <Link
+              href="/contact"
+              className="block py-2 text-sm font-medium hover:text-primary transition-colors"
+              onClick={() => setIsOpen(false)}
+            >
+              Contact
             </Link>
           </div>
         </div>
