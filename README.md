@@ -11,12 +11,23 @@
 
 ---
 
-### 🎬 **Live Demo**
-<div align="center" style="margin: 2rem 0;">
-  
-https://github.com/user-attachments/assets/eIf8IqYvoMw-1234-5678-9abc-def012345678
+### 🎬 **Live Demo Video**
 
-*Watch our application in action - built with modern web technologies for seamless family memory sharing*
+<div align="center" style="margin: 2rem 0;">
+
+[![Family Memories Live Demo](https://img.youtube.com/vi/eIf8IqYvoMw/maxresdefault.jpg)](https://youtu.be/eIf8IqYvoMw)
+
+**🎥 [▶️ Watch Full Demo on YouTube](https://youtu.be/eIf8IqYvoMw) | Direct Link: https://youtu.be/eIf8IqYvoMw**
+
+*Click the thumbnail above or use the direct link to see our Family Memories application in action!*
+
+**✨ What you'll see in the demo:**
+- 🖼️ Modern memory card layouts with smooth animations
+- 🌓 Real-time dark/light mode switching
+- 📱 Mobile-responsive design in action
+- 🎨 3D hero sections and interactive elements
+- ⚡ Fast loading and smooth navigation
+
 </div>
 
 ---
