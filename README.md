@@ -7,7 +7,7 @@
   <img src="/images/screenshot.svg" alt="Modern Interface Preview" width="800"/>
 </div>
 <div align="center" style="margin: 2rem 0">
-  <video src="/public/readme.mp4" alt="Family Memories Video" width="800" controls autoplay loop muted playsinline/>
+  <video src="public/readme.mp4" alt="Family Memories Video" width="800" controls autoplay loop muted playsinline/>
 </div>
 A beautiful and modern web application to store and share your precious family memories. Built with Next.js, Tailwind CSS, and Framer Motion for a smooth and delightful user experience.
 
