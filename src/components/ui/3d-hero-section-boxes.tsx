@@ -116,7 +116,7 @@ function HeroNavbar() {
             variant="outline" 
             className="border-white text-white px-5 py-2 rounded-full text-sm hover:bg-white hover:text-black transition duration-300 bg-transparent"
           >
-            Let's Talk!
+            Let&apos;s Talk!
           </Button>
         </div>
       </div>

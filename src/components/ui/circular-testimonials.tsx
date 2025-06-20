@@ -127,7 +127,6 @@ export const CircularTestimonials = ({
   function getImageStyle(index: number): React.CSSProperties {
     const gap = calculateGap(containerWidth);
     const maxStickUp = gap * 0.8;
-    const offset = (index - activeIndex + testimonialsLength) % testimonialsLength;
     // const zIndex = testimonialsLength - Math.abs(offset);
     const isActive = index === activeIndex;
     const isLeft = (activeIndex - 1 + testimonialsLength) % testimonialsLength === index;
