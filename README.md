@@ -1,5 +1,7 @@
 # Family Memories
 
+**Version 0.10 Beta** - June 2025
+
 ![Family Memories Screenshot](https://via.placeholder.com/800x400.png?text=Family+Memories+App)
 
 A beautiful and modern web application to store and share your precious family memories. Built with Next.js, Tailwind CSS, and Framer Motion for a smooth and delightful user experience.
@@ -75,3 +77,12 @@ Distributed under the MIT License. See `LICENSE` for more information.
 * [Vercel](https://vercel.com/)
 * [Tailwind Labs](https://tailwindcss.com/)
 * [Framer](https://www.framer.com/)
+
+## 📦 Changelog
+
+### v0.10 Beta (June 2025)
+- Initial beta release
+- Core memory sharing functionality
+- Dark/light theme system
+- Responsive layout implementation
+- Animated interface components
