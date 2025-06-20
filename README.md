@@ -8,7 +8,7 @@
 </div>
 9 |
 <div align="center" style="margin: 2rem 0">
-  <video src="/readme.mp4" alt="Family Memories Video" width="800" controls autoplay loop muted playsinline/>
+  <video src="/public/readme.mp4" alt="Family Memories Video" width="800" controls autoplay loop muted playsinline/>
 </div>
 13 |
 A beautiful and modern web application to store and share your precious family memories. Built with Next.js, Tailwind CSS, and Framer Motion for a smooth and delightful user experience.
