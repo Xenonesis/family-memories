@@ -1,6 +1,6 @@
 # Family Memories
 
-**Version 0.10 Beta** - June 2025
+**Version 0.12** - June 2025
 
 ![Family Memories Screenshot](https://via.placeholder.com/800x400.png?text=Family+Memories+App)
 
@@ -80,9 +80,9 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 ## 📦 Changelog
 
-### v0.10 Beta (June 2025)
-- Initial beta release
-- Core memory sharing functionality
-- Dark/light theme system
-- Responsive layout implementation
-- Animated interface components
+### v0.12 (June 2025)
+- Stable production release
+- Enhanced memory sharing functionality
+- Improved theme system with 3 new color schemes
+- Performance optimizations
+- Additional animation controls
