@@ -1,6 +1,6 @@
 # Family Memories
 
-**Version 0.12** - June 2025
+**Version 0.20** - June 2025
 
 ![Family Memories Screenshot](https://via.placeholder.com/800x400.png?text=Family+Memories+App)
 
@@ -80,8 +80,9 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 ## 📦 Changelog
 
-### v0.12 (June 2025)
-- Stable production release
+### v0.20 (June 2025)
+- Version bump to 0.20
+- Updated documentation
 - Enhanced memory sharing functionality
 - Improved theme system with 3 new color schemes
 - Performance optimizations
