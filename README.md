@@ -1,12 +1,16 @@
 # Family Memories
 
-**Version 0.20** - June 2025
+**Version 0.30** - June 2025
 
 ![Family Memories Interface](/images/screenshot.svg)
 <div align="center" style="margin: 2rem 0">
   <img src="/images/screenshot.svg" alt="Modern Interface Preview" width="800"/>
 </div>
-
+9 |
+<div align="center" style="margin: 2rem 0">
+  <video src="/readme.mp4" alt="Family Memories Video" width="800" controls/>
+</div>
+13 |
 A beautiful and modern web application to store and share your precious family memories. Built with Next.js, Tailwind CSS, and Framer Motion for a smooth and delightful user experience.
 
 ## ✨ Features
@@ -127,6 +131,14 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 ## 📦 Changelog
 
+### v0.25 (June 2025)
+- 🎉 **New**: Theme customization GUI
+- 🚀 **Improved**: Mobile navigation performance (+40%)
+- 🎨 **Added**: 3 preset color schemes (Sunset, Ocean, Forest)
+- 📱 **Optimized**: Touch interaction handling
+- ⚡ **Enhanced**: Memory card loading speed
+- 🐛 **Fixed**: Dark mode transition flicker
+
 ### v0.20 (June 2025)
 - 🎉 **New**: Theme customization GUI
 - 🚀 **Improved**: Mobile navigation performance (+40%)
@@ -134,3 +146,9 @@ Distributed under the MIT License. See `LICENSE` for more information.
 - 📱 **Optimized**: Touch interaction handling
 - ⚡ **Enhanced**: Memory card loading speed
 - 🐛 **Fixed**: Dark mode transition flicker
+
+### v0.10 (June 2025)
+- 🎉 **New**: Initial release
+- 🔧 **Fixed**: Minor bugs and glitches
+- 📱 **Optimized**: Mobile responsiveness
+- 📚 **Improved**: Documentation and help displays
