@@ -6,10 +6,35 @@ import { Card } from "@/components/ui/card";
 import { getCurrentUser } from "@/lib/auth";
 import { getUserVaults } from "@/lib/database";
 import { supabase } from "@/lib/supabase";
+import { User } from '@supabase/auth-js/dist/module/lib/types'; // Import Supabase User type
+
+// Define raw types based on the error message structure from getUserVaults
+interface VaultRaw {
+  id: string;
+  name: string;
+  description?: string;
+  color: string;
+  created_at: string;
+  created_by: string; // This seems to correspond to owner_id
+}
+
+interface UserVaultLinkRaw {
+  role: string | null; // Role in the vault, based on error
+  vaults: VaultRaw[];
+}
+
+interface Vault { // Define Vault type for state
+  id: string;
+  name: string;
+  description?: string;
+  color: string;
+  created_at: string;
+  owner_id: string;
+}
 
 export default function DebugPage() {
-  const [user, setUser] = useState<any>(null);
-  const [vaults, setVaults] = useState<any[]>([]);
+  const [user, setUser] = useState<User | null>(null);
+  const [vaults, setVaults] = useState<Vault[]>([]);
   const [testResults, setTestResults] = useState<string[]>([]);
 
   const addResult = (message: string) => {
@@ -19,10 +44,15 @@ export default function DebugPage() {
   const testConnection = async () => {
     try {
       addResult("Testing Supabase connection...");
-      const { data, error } = await supabase.from('vaults').select('count');
+      const { error } = await supabase.from('vaults').select('count'); // Removed unused 'data'
       if (error) throw error;
       addResult("✅ Supabase connection successful");
-    } catch (error) {
+    } catch (error: unknown) {
+if (error instanceof Error) {
+          addResult(`�� Supabase connection failed: ${error.message}`);
+        } else {
+          addResult(`�� Supabase connection failed: Unknown error`);
+        }
       addResult(`❌ Supabase connection failed: ${error}`);
     }
   };
@@ -33,11 +63,16 @@ export default function DebugPage() {
       const currentUser = await getCurrentUser();
       if (currentUser) {
         setUser(currentUser);
+if (error instanceof Error) {
+          addResult(`�� Authentication test failed: ${error.message}`);
+        } else {
+          addResult(`�� Authentication test failed: Unknown error`);
+        }
         addResult(`✅ User authenticated: ${currentUser.email}`);
       } else {
         addResult("❌ No user authenticated");
       }
-    } catch (error) {
+    } catch (error: unknown) {
       addResult(`❌ Authentication test failed: ${error}`);
     }
   };
@@ -51,9 +86,17 @@ export default function DebugPage() {
       }
       const { data, error } = await getUserVaults(user.id);
       if (error) throw error;
-      setVaults(data || []);
+      // Map the raw data structure to the expected Vault[] state
+      setVaults(data?.flatMap((item: UserVaultLinkRaw) => item.vaults.map(vaultRaw => ({
+        id: vaultRaw.id,
+        name: vaultRaw.name,
+        description: vaultRaw.description,
+        color: vaultRaw.color,
+        created_at: vaultRaw.created_at,
+        owner_id: vaultRaw.created_by, // Map created_by from raw data to owner_id
+      } as Vault))) || []);
       addResult(`✅ Vaults fetched: ${data?.length || 0} memberships`);
-    } catch (error) {
+    } catch (error: unknown) {
       addResult(`❌ Vault fetch failed: ${error}`);
     }
   };
@@ -61,10 +104,10 @@ export default function DebugPage() {
   const testStorage = async () => {
     try {
       addResult("Testing storage bucket...");
-      const { data, error } = await supabase.storage.from('photos').list();
+      const { error } = await supabase.storage.from('photos').list(); // Removed unused 'data'
       if (error) throw error;
       addResult("✅ Storage bucket accessible");
-    } catch (error) {
+    } catch (error: unknown) {
       addResult(`❌ Storage test failed: ${error}`);
     }
   };

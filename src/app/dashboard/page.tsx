@@ -3,19 +3,44 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { FaPlus, FaImage, FaUsers, FaClock, FaHeart, FaBell } from "react-icons/fa";
+import { FaPlus, FaImage, FaBell } from "react-icons/fa";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { getUserVaults } from "@/lib/database";
 import { supabase } from "@/lib/supabase";
+import { User } from '@supabase/auth-js/dist/module/lib/types'; // Import Supabase User type
+
+interface Vault {
+  id: string;
+  name: string;
+  description?: string;
+  color: string;
+  created_at: string;
+  owner_id: string;
+}
+
+interface Photo {
+  id: string;
+  title: string;
+  file_url: string;
+  created_at: string;
+  vault_id: string;
+  vaults?: {
+    name: string;
+  };
+}
+
+interface UserVaultLink { // Define type for the join table result
+  vaults: Vault;
+  // Add other fields from the join table if selected, e.g., user_id, vault_id, role
+}
 
 export default function DashboardPage() {
   const router = useRouter();
-  const [user, setUser] = useState<any>(null);
-  const [vaults, setVaults] = useState<any[]>([]);
-  const [recentPhotos, setRecentPhotos] = useState<any[]>([]);
+  const [user, setUser] = useState<User | null>(null);
+  const [vaults, setVaults] = useState<Vault[]>([]);
+  const [recentPhotos, setRecentPhotos] = useState<Photo[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -31,7 +56,8 @@ export default function DashboardPage() {
       // Get user vaults
       const { data: vaultData } = await getUserVaults(currentUser.id);
       if (vaultData) {
-        const userVaults = vaultData.map((item: any) => item.vaults);
+        // Cast vaultData to the expected type and map
+        const userVaults = (vaultData as UserVaultLink[]).map((item) => item.vaults);
         setVaults(userVaults);
         
         // Get recent photos from all vaults
@@ -80,7 +106,7 @@ export default function DashboardPage() {
               Welcome back, {user?.user_metadata?.full_name || user?.email}!
             </h1>
             <p className="text-gray-600 dark:text-gray-400 mt-2">
-              Here's what's happening in your family vaults
+              Here&apos;s what&apos;s happening in your family vaults
             </p>
           </div>
           <div className="flex gap-3">

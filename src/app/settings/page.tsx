@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
-import { FaUser, FaBell, FaShield, FaTrash, FaArrowLeft } from "react-icons/fa";
+import { FaUser, FaBell, FaLock, FaTrash, FaArrowLeft } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 
 export default function SettingsPage() {
@@ -62,7 +62,7 @@ export default function SettingsPage() {
                   Notifications
                 </button>
                 <button className="w-full flex items-center gap-3 px-3 py-2 text-left rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300">
-                  <FaShield className="w-4 h-4" />
+                  <FaLock className="w-4 h-4" />
                   Privacy & Security
                 </button>
               </nav>
@@ -149,7 +149,7 @@ export default function SettingsPage() {
             {/* Security Settings */}
             <Card className="p-6">
               <div className="flex items-center gap-3 mb-6">
-                <FaShield className="w-5 h-5 text-blue-600" />
+                <FaLock className="w-5 h-5 text-blue-600" />
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
                   Privacy & Security
                 </h2>

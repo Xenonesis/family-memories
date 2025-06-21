@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { User } from '@supabase/auth-js/dist/module/lib/types'; // Import Supabase User type
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,7 +21,7 @@ export default function CreateVaultPage() {
   const [inviteEmails, setInviteEmails] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
 
   const colorOptions = [
     "bg-blue-500", "bg-purple-500", "bg-green-500", "bg-red-500",
@@ -46,11 +48,11 @@ export default function CreateVaultPage() {
     setError("");
 
     try {
-      const { data, error } = await createVault(vaultName, description, selectedColor, user.id);
+      const { error } = await createVault(vaultName, description, selectedColor, user.id);
       if (error) throw error;
       
       router.push("/vault");
-    } catch (error: any) {
+    } catch (error: unknown) { // Specify unknown type for error
       setError(error.message);
     } finally {
       setLoading(false);

@@ -32,7 +32,7 @@ export default function AuthPage() {
         if (error) throw error;
         alert("Check your email for verification link!");
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       setError(error.message);
     } finally {
       setLoading(false);
