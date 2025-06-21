@@ -159,17 +159,43 @@
    pnpm install
    ```
 
-3. **Start the development server**
+3. **Setup environment variables**
+   ```bash
+   # Copy the example environment file
+   cp .env.example .env.local
+   
+   # Edit .env.local with your Supabase credentials
+   # Get these values from your Supabase project dashboard
+   NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+   ```
+
+4. **Start the development server**
    ```bash
    npm run dev
    # Server will start at http://localhost:3000
    ```
 
-4. **Build for production**
+5. **Build for production**
    ```bash
    npm run build
    npm start
    ```
+
+### **🔧 Environment Variables**
+
+The following environment variables are required:
+
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `NEXT_PUBLIC_SUPABASE_URL` | Your Supabase project URL | ✅ Yes |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Your Supabase anonymous key | ✅ Yes |
+
+**For Netlify deployment:**
+1. Go to your Netlify site dashboard
+2. Navigate to Site settings → Environment variables
+3. Add both `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+4. Redeploy your site
 
 ### **🛠️ Available Scripts**
 
