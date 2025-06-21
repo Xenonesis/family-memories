@@ -3,18 +3,25 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { FaPlus, FaUsers, FaImage, FaCog } from "react-icons/fa";
+import { FaPlus, FaImage, FaCog } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { getUserVaults } from "@/lib/database";
 import Link from "next/link";
 
+interface Vault {
+  id: string;
+  name: string;
+  description: string;
+  color: string;
+  created_at: string;
+  created_by: string;
+}
+
 export default function VaultPage() {
   const router = useRouter();
-  const [vaults, setVaults] = useState<any[]>([]);
+  const [vaults, setVaults] = useState<Vault[]>([]);
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<any>(null);
 
   useEffect(() => {
     const loadVaults = async () => {
@@ -24,10 +31,9 @@ export default function VaultPage() {
         return;
       }
       
-      setUser(currentUser);
       const { data, error } = await getUserVaults(currentUser.id);
       if (!error && data) {
-        setVaults(data.map((item: any) => item.vaults));
+        setVaults(data.flatMap((item: { vaults: Vault[] }) => item.vaults));
       }
       setLoading(false);
     };

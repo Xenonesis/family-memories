@@ -36,8 +36,6 @@ export const getUserVaults = async (userId: string) => {
 
 // Photo operations
 export const uploadPhoto = async (vaultId: string, userId: string, title: string, description: string, fileUrl: string) => {
-  console.log('Database: Saving photo record', { vaultId, userId, title, fileUrl });
-  
   const { data, error } = await supabase
     .from('photos')
     .insert([
@@ -50,12 +48,6 @@ export const uploadPhoto = async (vaultId: string, userId: string, title: string
       }
     ])
     .select()
-    
-  if (error) {
-    console.error('Database: Failed to save photo', error);
-  } else {
-    console.log('Database: Photo saved successfully', data);
-  }
     
   return { data, error }
 }

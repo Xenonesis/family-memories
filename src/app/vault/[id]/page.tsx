@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react"; // Import React
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { FaUpload, FaUsers, FaTrash, FaHeart, FaShare, FaCalendar } from "react-icons/fa";
+import { FaUpload, FaTrash, FaShare, FaCalendar } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { getVaultPhotos } from "@/lib/database";
@@ -15,14 +15,32 @@ interface VaultPageProps {
   params: Promise<{ id: string }>;
 }
 
+interface Vault {
+  id: string;
+  name: string;
+  description?: string;
+  color: string;
+  created_at: string;
+  created_by: string;
+}
+
+interface Photo {
+  id: string;
+  title: string;
+  description?: string;
+  file_url: string;
+  created_at: string;
+  vault_id: string;
+  uploaded_by: string;
+}
+
 export default function VaultDetailPage({ params }: VaultPageProps) {
   const router = useRouter();
   const [selectedPhotos, setSelectedPhotos] = useState<string[]>([]);
   const [viewMode, setViewMode] = useState<"grid" | "timeline">("grid");
-  const [vault, setVault] = useState<any>(null);
-  const [photos, setPhotos] = useState<any[]>([]);
+  const [vault, setVault] = useState<Vault | null>(null);
+  const [photos, setPhotos] = useState<Photo[]>([]);
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<any>(null);
 
   // Unwrap params using React.use()
   const { id: vaultId } = React.use(params);
@@ -34,8 +52,6 @@ export default function VaultDetailPage({ params }: VaultPageProps) {
         router.push("/auth");
         return;
       }
-
-      setUser(currentUser);
 
       // Get vault details
       const { data: vaultData, error: vaultError } = await supabase
@@ -96,20 +112,16 @@ export default function VaultDetailPage({ params }: VaultPageProps) {
     );
   };
 
-  const handleUpload = () => {
-    // TODO: Implement file upload with Supabase Storage
-    console.log("Upload photos");
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 dark:from-gray-900 dark:to-gray-800">
       {/* Header */}
-      <div className={`${vault.color} text-white p-8`}>
+      <div className={`${vault?.color} text-white p-8`}>
         <div className="max-w-6xl mx-auto">
           <div className="flex justify-between items-start">
             <div>
-              <h1 className="text-4xl font-bold mb-2">{vault.name}</h1>
-              <p className="text-blue-100 mb-4">{vault.description}</p>
+              <h1 className="text-4xl font-bold mb-2">{vault?.name}</h1>
+              <p className="text-blue-100 mb-4">{vault?.description}</p>
               <div className="flex items-center gap-4">
                 <Badge variant="secondary" className="bg-white/20 text-white">
                   {photos.length} photos
@@ -166,7 +178,7 @@ export default function VaultDetailPage({ params }: VaultPageProps) {
 
         {/* Photo Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {photos.map((photo) => (
+          {photos.map((photo: unknown) => (
             <Card
               key={photo.id}
               className={`overflow-hidden cursor-pointer transition-all ${

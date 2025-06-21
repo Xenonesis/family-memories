@@ -103,7 +103,7 @@ export default function ContactPage() {
               Contact Family Memories
             </h1>
             <p className="text-xl text-muted-foreground mb-8">
-              We're here to help you preserve and share your precious family moments. 
+              We&apos;re here to help you preserve and share your precious family moments.
               Reach out to us for support, questions, or just to say hello!
             </p>
           </div>
@@ -139,7 +139,7 @@ export default function ContactPage() {
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold mb-4">Send Us a Message</h2>
               <p className="text-muted-foreground">
-                Fill out the form below and we'll get back to you as soon as possible
+                Fill out the form below and we&apos;ll get back to you as soon as possible
               </p>
             </div>
 
@@ -161,7 +161,7 @@ export default function ContactPage() {
                     </div>
                     <h3 className="text-xl font-semibold mb-2">Thank You!</h3>
                     <p className="text-muted-foreground">
-                      Your message has been sent successfully. We'll get back to you within 24 hours.
+                      Your message has been sent successfully. We&apos;ll get back to you within 24 hours.
                     </p>
                   </div>
                 ) : (

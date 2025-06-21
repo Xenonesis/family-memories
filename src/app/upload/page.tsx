@@ -62,7 +62,6 @@ export default function UploadPage() {
       setUser(currentUser);
       const { data, error: fetchError } = await getUserVaults(currentUser.id);
       if (!fetchError && data) {
-        console.log('Raw vault data:', data);
         // The data comes as array with vault relationships, so we need to properly handle it
         const validMemberships: VaultMembership[] = [];
         
@@ -86,11 +85,9 @@ export default function UploadPage() {
   }, [router]);
 
   const handleFileSelect = useCallback((files: FileList) => {
-    console.log('Files selected:', files.length);
     const newFiles: UploadedFile[] = [];
 
     Array.from(files).forEach((file) => {
-      console.log('Processing file:', file.name, file.type, file.size);
       // Check file type and size (10MB limit)
       const maxSize = 10 * 1024 * 1024; // 10MB in bytes
       if (file.type.startsWith('image/') && file.size <= maxSize) {
@@ -119,7 +116,6 @@ export default function UploadPage() {
       }
     });
 
-    console.log('New files to add:', newFiles.length);
     setUploadedFiles(prev => [...prev, ...newFiles]);
   }, []);
 
@@ -161,14 +157,8 @@ export default function UploadPage() {
   };
 
   const handleUpload = async () => {
-    console.log('Upload initiated');
-    console.log('Selected vault:', selectedVault);
-    console.log('Uploaded files:', uploadedFiles.length);
-    console.log('User:', user);
-    
     if (!selectedVault || uploadedFiles.length === 0 || !user) {
       const errorMsg = "Please select a vault and ensure there are files to upload.";
-      console.error('Upload validation failed:', errorMsg);
       setGeneralError(errorMsg);
       return;
     }
@@ -177,11 +167,9 @@ export default function UploadPage() {
     setGeneralError(""); // Clear general errors
 
     const filesToUpload = uploadedFiles.filter(f => f.status === 'pending');
-    console.log('Files to upload:', filesToUpload.length);
     let allSuccessful = true;
 
     for (const fileData of filesToUpload) {
-      console.log('Uploading file:', fileData.title);
       // Update status to uploading
       setUploadedFiles(prev =>
         prev.map(f => f.id === fileData.id ? { ...f, status: 'uploading' } : f)
@@ -189,7 +177,6 @@ export default function UploadPage() {
 
       try {
         // Upload file to storage
-        console.log('Calling uploadFile...');
         const { data: uploadData, error: uploadError } = await uploadFile(
           fileData.file,
           user.id,
@@ -197,11 +184,8 @@ export default function UploadPage() {
         );
 
         if (uploadError) {
-          console.error('Upload error:', uploadError);
           throw uploadError;
         }
-        
-        console.log('File uploaded successfully, saving to database...');
 
         // Save photo record to database
         const { error: dbError } = await uploadPhoto(
@@ -213,11 +197,8 @@ export default function UploadPage() {
         );
 
         if (dbError) {
-          console.error('Database error:', dbError);
           throw dbError;
         }
-
-        console.log('Photo saved to database successfully');
 
         // Update status to success
         setUploadedFiles(prev =>
@@ -225,7 +206,6 @@ export default function UploadPage() {
         );
 
       } catch (error: unknown) { // Use unknown for better type safety
-        console.error('Upload failed for file:', fileData.title, error);
         allSuccessful = false;
         // Update status to failed
         setUploadedFiles(prev =>
@@ -237,8 +217,7 @@ export default function UploadPage() {
     setIsUploading(false);
 
     if (allSuccessful) {
-      // Optionally show a success message before redirecting
-      console.log("All files uploaded successfully!");
+      // Redirect to vault on success
       router.push(`/vault/${selectedVault}`);
     } else {
       // Keep user on the page to see failed uploads
@@ -268,18 +247,6 @@ export default function UploadPage() {
             </p>
           </div>
         </div>
-
-        {/* Debug Info */}
-        <Card className="p-6 mb-6 bg-yellow-50 dark:bg-yellow-900/10">
-          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Debug Information</h3>
-          <div className="space-y-2 text-sm">
-            <p><strong>User:</strong> {user ? `${user.email} (${user.id})` : 'Not authenticated'}</p>
-            <p><strong>Vault Memberships:</strong> {vaultMemberships.length}</p>
-            <p><strong>Selected Vault:</strong> {selectedVault || 'None'}</p>
-            <p><strong>Uploaded Files:</strong> {uploadedFiles.length}</p>
-            <p><strong>Files ready to upload:</strong> {uploadedFiles.filter(f => f.status === 'pending').length}</p>
-          </div>
-        </Card>
 
         {/* Vault Selection */}
         <Card className="p-6 mb-6">
