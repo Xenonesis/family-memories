@@ -385,7 +385,7 @@ copies or substantial portions of the Software.
 
 ### **🌟 Star History**
 
-[![Star History Chart](https://api.star-history.com/svg?repos=Xenonesis/family-memories&type=Date)](https://star-history.com/#Xenonesis/family-memories&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=Xenonesis/family-memories&type=Date)](https://star-history.com/#Xenonesis/family-memories&Date)<!-- Force refresh -->
 
 ### **📊 Project Stats**
 
