@@ -4,7 +4,7 @@
 ### *Preserve Your Precious Moments Forever*
 
 <div align="center">
-  <img src="https://img.shields.io/badge/Version-0.45-ff6b6b?style=for-the-badge&logo=semantic-release&logoColor=white" alt="Version 0.45">
+  <img src="https://img.shields.io/badge/Version-0.45-ff6b6b?style=for-the-badge&logo=semantic-release&logoColor=white" alt="Version 0.50">
   <img src="https://img.shields.io/badge/Release-June%202025-4ecdc4?style=for-the-badge&logo=calendar&logoColor=white" alt="Release Date">
   <img src="https://img.shields.io/badge/License-MIT-45b7d1?style=for-the-badge&logo=opensourceinitiative&logoColor=white" alt="MIT License">
 </div>
