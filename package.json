@@ -17,6 +17,7 @@
     "@radix-ui/react-switch": "^1.2.5",
     "@radix-ui/react-tooltip": "^1.2.7",
     "@splinetool/react-spline": "^4.0.0",
+    "@supabase/supabase-js": "^2.50.0",
     "@tabler/icons-react": "^3.34.0",
     "@tailwindcss/nesting": "^0.0.0-insiders.565cd3e",
     "class-variance-authority": "^0.7.1",

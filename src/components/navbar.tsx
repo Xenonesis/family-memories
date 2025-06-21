@@ -17,41 +17,26 @@ import {
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
 
-const components: { title: string; href: string; description: string }[] = [
+const vaultFeatures: { title: string; href: string; description: string }[] = [
   {
-    title: "Alert Dialog",
-    href: "/docs/primitives/alert-dialog",
-    description:
-      "A modal dialog that interrupts the user with important content and expects a response.",
+    title: "My Vaults",
+    href: "/vault",
+    description: "View and manage all your family memory vaults.",
   },
   {
-    title: "Hover Card",
-    href: "/docs/primitives/hover-card",
-    description:
-      "For sighted users to preview content available behind a link.",
+    title: "Create Vault",
+    href: "/create-vault",
+    description: "Start a new family memory collection and invite members.",
   },
   {
-    title: "Progress",
-    href: "/docs/primitives/progress",
-    description:
-      "Displays an indicator showing the completion progress of a task, typically displayed as a progress bar.",
+    title: "Upload Photos",
+    href: "/upload",
+    description: "Add new memories to your family vaults.",
   },
   {
-    title: "Scroll-area",
-    href: "/docs/primitives/scroll-area",
-    description: "Visually or semantically separates content.",
-  },
-  {
-    title: "Tabs",
-    href: "/docs/primitives/tabs",
-    description:
-      "A set of layered sections of content—known as tab panels—that are displayed one at a time.",
-  },
-  {
-    title: "Tooltip",
-    href: "/docs/primitives/tooltip",
-    description:
-      "A popup that displays information related to an element when the element receives keyboard focus or the mouse hovers over it.",
+    title: "Dashboard",
+    href: "/dashboard",
+    description: "Overview of your activity and recent family memories.",
   },
 ];
 
@@ -72,50 +57,49 @@ export function Navbar() {
           <NavigationMenu>
             <NavigationMenuList>
               <NavigationMenuItem>
-                <NavigationMenuTrigger>Getting started</NavigationMenuTrigger>
+                <NavigationMenuTrigger>Family Vault</NavigationMenuTrigger>
                 <NavigationMenuContent>
                   <ul className="grid gap-3 p-6 w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
                     <li className="row-span-3">
                       <NavigationMenuLink asChild>
                         <Link
-                          href="/"
+                          href="/dashboard"
                           className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md"
                         >
                           <div className="mb-2 mt-4 text-lg font-medium">
-                            Family Memories
+                            Family Vault
                           </div>
                           <p className="text-sm leading-tight text-muted-foreground">
-                            Beautifully designed components that you can copy and
-                            paste into your apps. Accessible. Customizable. Open
-                            Source.
+                            Secure, shared digital vault for families to preserve
+                            and access their cherished memories together.
                           </p>
                         </Link>
                       </NavigationMenuLink>
                     </li>
 
-                    <ListItem href="/docs" title="Introduction">
-                      Re-usable components built using Radix UI and Tailwind CSS.
+                    <ListItem href="/vault" title="My Vaults">
+                      View and manage all your family memory collections.
                     </ListItem>
-                    <ListItem href="/docs/installation" title="Installation">
-                      How to install dependencies and structure your app.
+                    <ListItem href="/create-vault" title="Create Vault">
+                      Start a new family memory vault and invite members.
                     </ListItem>
-                    <ListItem href="/docs/primitives/typography" title="Typography">
-                      Styles for headings, paragraphs, lists...etc
+                    <ListItem href="/upload" title="Upload Photos">
+                      Add new precious memories to your vaults.
                     </ListItem>
                   </ul>
                 </NavigationMenuContent>
               </NavigationMenuItem>
               <NavigationMenuItem>
-                <NavigationMenuTrigger>Components</NavigationMenuTrigger>
+                <NavigationMenuTrigger>Features</NavigationMenuTrigger>
                 <NavigationMenuContent>
                   <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
-                    {components.map((component) => (
+                    {vaultFeatures.map((feature) => (
                       <ListItem
-                        key={component.title}
-                        title={component.title}
-                        href={component.href}
+                        key={feature.title}
+                        title={feature.title}
+                        href={feature.href}
                       >
-                        {component.description}
+                        {feature.description}
                       </ListItem>
                     ))}
                   </ul>
@@ -123,8 +107,8 @@ export function Navbar() {
               </NavigationMenuItem>
               <NavigationMenuItem>
                 <NavigationMenuLink asChild>
-                  <Link href="/docs" className={navigationMenuTriggerStyle()}>
-                    Documentation
+                  <Link href="/auth" className={navigationMenuTriggerStyle()}>
+                    Sign In
                   </Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
@@ -172,27 +156,40 @@ export function Navbar() {
             >
               Home
             </Link>
-
             <Link
-              href="/docs"
+              href="/dashboard"
               className="block py-2 text-sm font-medium hover:text-primary transition-colors"
               onClick={() => setIsOpen(false)}
             >
-              Getting Started
+              Dashboard
             </Link>
             <Link
-              href="/components"
+              href="/vault"
               className="block py-2 text-sm font-medium hover:text-primary transition-colors"
               onClick={() => setIsOpen(false)}
             >
-              Components
+              My Vaults
             </Link>
             <Link
-              href="/docs"
+              href="/create-vault"
               className="block py-2 text-sm font-medium hover:text-primary transition-colors"
               onClick={() => setIsOpen(false)}
             >
-              Documentation
+              Create Vault
+            </Link>
+            <Link
+              href="/upload"
+              className="block py-2 text-sm font-medium hover:text-primary transition-colors"
+              onClick={() => setIsOpen(false)}
+            >
+              Upload Photos
+            </Link>
+            <Link
+              href="/auth"
+              className="block py-2 text-sm font-medium hover:text-primary transition-colors"
+              onClick={() => setIsOpen(false)}
+            >
+              Sign In
             </Link>
             <Link
               href="/about"

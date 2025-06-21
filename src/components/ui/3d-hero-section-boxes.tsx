@@ -74,21 +74,23 @@ function HeroContent() {
           Create beautiful collections of your precious moments and share them with your loved ones
         </p>
         <div className="flex pointer-events-auto flex-col sm:flex-row items-start space-y-3 sm:space-y-0 sm:space-x-3">
-          <Link href="/contact">
+          <Link href="/auth">
             <Button 
               variant="outline" 
               className="border-white text-white font-semibold py-2.5 sm:py-3.5 px-6 sm:px-8 rounded-2xl transition duration-300 w-full sm:w-auto hover:bg-white hover:text-black bg-transparent"
             >
               <Phone className="w-4 h-4 mr-2" />
-              Contact Us
+              Sign In
             </Button>
           </Link>
-          <Button 
-            className="pointer-events-auto bg-white text-black font-semibold py-2.5 sm:py-3.5 px-6 sm:px-8 rounded-2xl transition duration-300 hover:scale-105 flex items-center justify-center w-full sm:w-auto"
-          >
-            <Plus className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-cyan-400" />
-            Get Started
-          </Button>
+          <Link href="/dashboard">
+            <Button 
+              className="pointer-events-auto bg-white text-black font-semibold py-2.5 sm:py-3.5 px-6 sm:px-8 rounded-2xl transition duration-300 hover:scale-105 flex items-center justify-center w-full sm:w-auto"
+            >
+              <Plus className="w-4 h-4 sm:w-5 sm:h-5 mr-2 text-cyan-400" />
+              Get Started
+            </Button>
+          </Link>
         </div>
       </div>
     </div>
@@ -108,18 +110,27 @@ function HeroNavbar() {
 
           <div className="hidden md:flex items-center space-x-6">
             <Link href="/" className="text-gray-300 hover:text-white text-sm transition duration-150">Home</Link>
+            <Link href="/dashboard" className="text-gray-300 hover:text-white text-sm transition duration-150">Dashboard</Link>
+            <Link href="/vault" className="text-gray-300 hover:text-white text-sm transition duration-150">Vaults</Link>
             <Link href="/about" className="text-gray-300 hover:text-white text-sm transition duration-150">About</Link>
             <Link href="/contact" className="text-gray-300 hover:text-white text-sm transition duration-150">Contact</Link>
           </div>
         </div>
 
-        <div className="flex items-center">
-          <Link href="/contact">
+        <div className="flex items-center space-x-3">
+          <Link href="/auth">
             <Button 
               variant="outline" 
               className="border-white text-white px-5 py-2 rounded-full text-sm hover:bg-white hover:text-black transition duration-300 bg-transparent"
             >
-              Let&apos;s Talk!
+              Sign In
+            </Button>
+          </Link>
+          <Link href="/create-vault">
+            <Button 
+              className="bg-white text-black px-5 py-2 rounded-full text-sm hover:bg-gray-200 transition duration-300"
+            >
+              Create Vault
             </Button>
           </Link>
         </div>
