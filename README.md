@@ -458,12 +458,6 @@ copies or substantial portions of the Software.
 
 ### **Previous Releases**
 
-<details>
-<summary><strong>📋 v0.55 (June 2025)</strong> - Update Readme</summary>
-
-* 🎉 **New**: Updated version number to 0.55
-
-</details>
 
 <details>
 <summary><strong>📋 v0.34 (June 2025)</strong> - UI Enhancements</summary>
