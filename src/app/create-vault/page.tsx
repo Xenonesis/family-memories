@@ -12,6 +12,7 @@ import { FaArrowLeft, FaPalette, FaUsers } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { createVault } from "@/lib/database";
+import { ProfileNav } from "@/components/ProfileNav";
 
 export default function CreateVaultPage() {
   const router = useRouter();
@@ -53,7 +54,7 @@ export default function CreateVaultPage() {
       
       router.push("/vault");
     } catch (error: unknown) { // Specify unknown type for error
-      setError(error.message);
+      setError(error instanceof Error ? error.message : 'An error occurred');
     } finally {
       setLoading(false);
     }
@@ -61,6 +62,7 @@ export default function CreateVaultPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 p-6">
+      <ProfileNav />
       <div className="max-w-2xl mx-auto">
         <div className="flex items-center gap-4 mb-8">
           <Button 

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { SimpleNavbar } from "@/components/simple-navbar";
 import { Footer } from "@/components/footer";
+import { ProfileNav } from "@/components/ProfileNav";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -89,6 +90,7 @@ export default function ContactPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      <ProfileNav />
       <SimpleNavbar />
       
       {/* Hero Section */}

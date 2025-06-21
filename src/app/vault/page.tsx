@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { getUserVaults } from "@/lib/database";
 import Link from "next/link";
+import { ProfileNav } from "@/components/ProfileNav";
 
 interface Vault {
   id: string;
@@ -54,6 +55,7 @@ export default function VaultPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 p-6 sm:p-8 lg:p-12">
+      <ProfileNav />
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center gap-4 mb-6">
           <Button variant="ghost" size="sm" onClick={() => router.back()}>

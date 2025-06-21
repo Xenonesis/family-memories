@@ -6,24 +6,10 @@ import { Card } from "@/components/ui/card";
 import { getCurrentUser } from "@/lib/auth";
 import { getUserVaults } from "@/lib/database";
 import { supabase } from "@/lib/supabase";
-import { User } from '@supabase/auth-js/dist/module/lib/types'; // Import Supabase User type
+import { User } from '@supabase/auth-js/dist/module/lib/types';
+import { ProfileNav } from "@/components/ProfileNav";
 
-// Define raw types based on the error message structure from getUserVaults
-interface VaultRaw {
-  id: string;
-  name: string;
-  description?: string;
-  color: string;
-  created_at: string;
-  created_by: string; // This seems to correspond to owner_id
-}
-
-interface UserVaultLinkRaw {
-  role: string | null; // Role in the vault, based on error
-  vaults: VaultRaw[];
-}
-
-interface Vault { // Define Vault type for state
+interface Vault {
   id: string;
   name: string;
   description?: string;
@@ -32,28 +18,35 @@ interface Vault { // Define Vault type for state
   owner_id: string;
 }
 
+interface UserVaultLinkRaw {
+  role: string;
+  vaults: {
+    id: string;
+    name: string;
+    description?: string;
+    color: string;
+    created_at: string;
+    created_by: string;
+  }[];
+}
+
 export default function DebugPage() {
   const [user, setUser] = useState<User | null>(null);
   const [vaults, setVaults] = useState<Vault[]>([]);
   const [testResults, setTestResults] = useState<string[]>([]);
 
-  const addResult = (message: string) => {
-    setTestResults(prev => [...prev, `${new Date().toLocaleTimeString()}: ${message}`]);
+  const addResult = (result: string) => {
+    setTestResults(prev => [...prev, `${new Date().toLocaleTimeString()}: ${result}`]);
   };
 
   const testConnection = async () => {
     try {
       addResult("Testing Supabase connection...");
-      const { error } = await supabase.from('vaults').select('count'); // Removed unused 'data'
+      const { error } = await supabase.from('vaults').select('count');
       if (error) throw error;
       addResult("✅ Supabase connection successful");
     } catch (error: unknown) {
-if (error instanceof Error) {
-          addResult(`�� Supabase connection failed: ${error.message}`);
-        } else {
-          addResult(`�� Supabase connection failed: Unknown error`);
-        }
-      addResult(`❌ Supabase connection failed: ${error}`);
+      addResult(`❌ Connection test failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 
@@ -63,17 +56,12 @@ if (error instanceof Error) {
       const currentUser = await getCurrentUser();
       if (currentUser) {
         setUser(currentUser);
-if (error instanceof Error) {
-          addResult(`�� Authentication test failed: ${error.message}`);
-        } else {
-          addResult(`�� Authentication test failed: Unknown error`);
-        }
         addResult(`✅ User authenticated: ${currentUser.email}`);
       } else {
         addResult("❌ No user authenticated");
       }
     } catch (error: unknown) {
-      addResult(`❌ Authentication test failed: ${error}`);
+      addResult(`❌ Authentication test failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 
@@ -86,6 +74,7 @@ if (error instanceof Error) {
       }
       const { data, error } = await getUserVaults(user.id);
       if (error) throw error;
+      
       // Map the raw data structure to the expected Vault[] state
       setVaults(data?.flatMap((item: UserVaultLinkRaw) => item.vaults.map(vaultRaw => ({
         id: vaultRaw.id,
@@ -93,22 +82,23 @@ if (error instanceof Error) {
         description: vaultRaw.description,
         color: vaultRaw.color,
         created_at: vaultRaw.created_at,
-        owner_id: vaultRaw.created_by, // Map created_by from raw data to owner_id
+        owner_id: vaultRaw.created_by,
       } as Vault))) || []);
+      
       addResult(`✅ Vaults fetched: ${data?.length || 0} memberships`);
     } catch (error: unknown) {
-      addResult(`❌ Vault fetch failed: ${error}`);
+      addResult(`❌ Vault fetch failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 
   const testStorage = async () => {
     try {
       addResult("Testing storage bucket...");
-      const { error } = await supabase.storage.from('photos').list(); // Removed unused 'data'
+      const { error } = await supabase.storage.from('photos').list();
       if (error) throw error;
       addResult("✅ Storage bucket accessible");
     } catch (error: unknown) {
-      addResult(`❌ Storage test failed: ${error}`);
+      addResult(`❌ Storage test failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 
@@ -122,46 +112,75 @@ if (error instanceof Error) {
 
   useEffect(() => {
     runAllTests();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 p-6">
+      <ProfileNav />
       <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">
-          Upload Debug Page
+          Debug Panel
         </h1>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Test Controls */}
+          <Card className="p-6">
+            <h2 className="text-xl font-semibold mb-4">Test Controls</h2>
+            <div className="space-y-2">
+              <Button onClick={runAllTests} className="w-full">
+                Run All Tests
+              </Button>
+              <Button onClick={testConnection} variant="outline" className="w-full">
+                Test Connection
+              </Button>
+              <Button onClick={testAuth} variant="outline" className="w-full">
+                Test Authentication
+              </Button>
+              <Button onClick={testVaults} variant="outline" className="w-full">
+                Test Vaults
+              </Button>
+              <Button onClick={testStorage} variant="outline" className="w-full">
+                Test Storage
+              </Button>
+            </div>
+          </Card>
 
-        <Card className="p-6 mb-6">
-          <h2 className="text-xl font-semibold mb-4">Test Results</h2>
-          <Button onClick={runAllTests} className="mb-4">
-            Run All Tests
-          </Button>
-          <div className="space-y-2 max-h-96 overflow-y-auto">
-            {testResults.map((result, index) => (
-              <div key={index} className="text-sm font-mono p-2 bg-gray-100 dark:bg-gray-800 rounded">
-                {result}
+          {/* Current State */}
+          <Card className="p-6">
+            <h2 className="text-xl font-semibold mb-4">Current State</h2>
+            <div className="space-y-3">
+              <div>
+                <strong>User:</strong> {user ? user.email : 'Not authenticated'}
               </div>
-            ))}
+              <div>
+                <strong>Vaults:</strong> {vaults.length}
+              </div>
+              <div>
+                <strong>Environment:</strong> {process.env.NODE_ENV}
+              </div>
+              <div>
+                <strong>Supabase URL:</strong> {process.env.NEXT_PUBLIC_SUPABASE_URL ? 'Set' : 'Not set'}
+              </div>
+            </div>
+          </Card>
+        </div>
+
+        {/* Test Results */}
+        <Card className="p-6 mt-6">
+          <h2 className="text-xl font-semibold mb-4">Test Results</h2>
+          <div className="bg-gray-900 text-green-400 p-4 rounded-md font-mono text-sm max-h-96 overflow-y-auto">
+            {testResults.length === 0 ? (
+              <p>No tests run yet...</p>
+            ) : (
+              testResults.map((result, index) => (
+                <div key={index} className="mb-1">
+                  {result}
+                </div>
+              ))
+            )}
           </div>
         </Card>
-
-        {user && (
-          <Card className="p-6 mb-6">
-            <h2 className="text-xl font-semibold mb-4">User Info</h2>
-            <pre className="text-sm bg-gray-100 dark:bg-gray-800 p-4 rounded overflow-auto">
-              {JSON.stringify(user, null, 2)}
-            </pre>
-          </Card>
-        )}
-
-        {vaults.length > 0 && (
-          <Card className="p-6">
-            <h2 className="text-xl font-semibold mb-4">Vaults</h2>
-            <pre className="text-sm bg-gray-100 dark:bg-gray-800 p-4 rounded overflow-auto">
-              {JSON.stringify(vaults, null, 2)}
-            </pre>
-          </Card>
-        )}
       </div>
     </div>
   );

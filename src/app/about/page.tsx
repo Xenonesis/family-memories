@@ -2,6 +2,7 @@
 
 import { SimpleNavbar } from "@/components/simple-navbar";
 import { Footer } from "@/components/footer";
+import { ProfileNav } from "@/components/ProfileNav";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -43,6 +44,7 @@ export default function AboutPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      <ProfileNav />
       <SimpleNavbar />
       
       {/* Hero Section */}

@@ -2,19 +2,17 @@
 
 import { useState, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
-import { FaUpload, FaTrash, FaImage, FaArrowLeft, FaUsers } from "react-icons/fa";
+import { FaUpload, FaArrowLeft } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { getUserVaults, uploadPhoto } from "@/lib/database";
 import { uploadFile } from "@/lib/storage";
-import { User } from "@supabase/supabase-js"; // Import User type
+import { User } from "@supabase/supabase-js";
+import { ProfileNav } from "@/components/ProfileNav";
+import { VaultSelector } from "@/components/upload/VaultSelector";
+import { FileUploadArea } from "@/components/upload/FileUploadArea";
+import { FileList } from "@/components/upload/FileList";
 
-// Define the interface for a single vault as returned by the database query
 interface Vault {
   id: string;
   name: string;
@@ -22,13 +20,23 @@ interface Vault {
   color: string;
   created_by: string;
   created_at: string;
-  // Note: 'updated_at' is not returned by the 'getUserVaults' select statement
 }
 
-// Define the interface for our processed vault membership
 interface VaultMembership {
   role: string;
   vaults: Vault;
+}
+
+interface VaultMembershipResponse {
+  role: string;
+  vaults: {
+    id: string;
+    name: string;
+    description: string | null;
+    color: string;
+    created_at: string;
+    created_by: string;
+  }[];
 }
 
 interface UploadedFile {
@@ -37,8 +45,8 @@ interface UploadedFile {
   preview: string;
   title: string;
   description: string;
-  status: 'pending' | 'uploading' | 'success' | 'failed' | 'skipped'; // Add status field
-  errorMessage?: string; // Add optional error message
+  status: 'pending' | 'uploading' | 'success' | 'failed' | 'skipped';
+  errorMessage?: string;
 }
 
 export default function UploadPage() {
@@ -47,9 +55,9 @@ export default function UploadPage() {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const [vaultMemberships, setVaultMemberships] = useState<VaultMembership[]>([]);
-  const [user, setUser] = useState<User | null>(null); // Use User type
-  const [isUploading, setIsUploading] = useState(false); // Use isUploading for overall state
-  const [generalError, setGeneralError] = useState(""); // Use generalError for vault fetching etc.
+  const [user, setUser] = useState<User | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [generalError, setGeneralError] = useState("");
 
   useEffect(() => {
     const loadData = async () => {
@@ -62,21 +70,21 @@ export default function UploadPage() {
       setUser(currentUser);
       const { data, error: fetchError } = await getUserVaults(currentUser.id);
       if (!fetchError && data) {
-        // The data comes as array with vault relationships, so we need to properly handle it
         const validMemberships: VaultMembership[] = [];
         
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        data.forEach((item: any) => {
-          if (item.vaults) {
-            validMemberships.push({
-              role: item.role,
-              vaults: item.vaults
+        data.forEach((item: VaultMembershipResponse) => {
+          if (item.vaults && Array.isArray(item.vaults)) {
+            item.vaults.forEach((vault) => {
+              validMemberships.push({
+                role: item.role,
+                vaults: vault
+              });
             });
           }
         });
         
         setVaultMemberships(validMemberships);
-      } else if (fetchError) { // Handle fetch error separately
+      } else if (fetchError) {
         setGeneralError(fetchError.message);
       }
     };
@@ -86,10 +94,9 @@ export default function UploadPage() {
 
   const handleFileSelect = useCallback((files: FileList) => {
     const newFiles: UploadedFile[] = [];
+    const maxSize = 10 * 1024 * 1024;
 
     Array.from(files).forEach((file) => {
-      // Check file type and size (10MB limit)
-      const maxSize = 10 * 1024 * 1024; // 10MB in bytes
       if (file.type.startsWith('image/') && file.size <= maxSize) {
         const id = Math.random().toString(36).substr(2, 9);
         const preview = URL.createObjectURL(file);
@@ -100,15 +107,13 @@ export default function UploadPage() {
           preview,
           title: file.name.replace(/\.[^/.]+$/, ""),
           description: "",
-          status: 'pending' // Initial status
+          status: 'pending'
         });
       } else {
-        console.warn(`File ${file.name} skipped: Invalid type or size exceeds 10MB.`);
-        // Add skipped file to state with status 'skipped'
         newFiles.push({
           id: Math.random().toString(36).substr(2, 9),
           file,
-          preview: '', // No preview for skipped files
+          preview: '',
           title: file.name,
           description: `Skipped: Invalid type (${file.type}) or size (${(file.size / 1024 / 1024).toFixed(2)}MB > 10MB)`,
           status: 'skipped'
@@ -141,7 +146,7 @@ export default function UploadPage() {
   const removeFile = (id: string) => {
     setUploadedFiles(prev => {
       const file = prev.find(f => f.id === id);
-      if (file && file.preview) { // Only revoke if preview exists
+      if (file && file.preview) {
         URL.revokeObjectURL(file.preview);
       }
       return prev.filter(f => f.id !== id);
@@ -156,15 +161,19 @@ export default function UploadPage() {
     );
   };
 
+  const handleVaultSelect = (vaultId: string) => {
+    setSelectedVault(vaultId);
+    setGeneralError("");
+  };
+
   const handleUpload = async () => {
     if (!selectedVault || uploadedFiles.length === 0 || !user) {
-      const errorMsg = "Please select a vault and ensure there are files to upload.";
-      setGeneralError(errorMsg);
+      setGeneralError("Please select a vault and ensure there are files to upload.");
       return;
     }
 
     setIsUploading(true);
-    setGeneralError(""); // Clear general errors
+    setGeneralError("");
 
     const filesToUpload = uploadedFiles.filter(f => f.status === 'pending');
     let allSuccessful = true;
@@ -205,9 +214,8 @@ export default function UploadPage() {
           prev.map(f => f.id === fileData.id ? { ...f, status: 'success' } : f)
         );
 
-      } catch (error: unknown) { // Use unknown for better type safety
+      } catch (error: unknown) {
         allSuccessful = false;
-        // Update status to failed
         setUploadedFiles(prev =>
           prev.map(f => f.id === fileData.id ? { ...f, status: 'failed', errorMessage: error instanceof Error ? error.message : "Upload failed" } : f)
         );
@@ -217,16 +225,15 @@ export default function UploadPage() {
     setIsUploading(false);
 
     if (allSuccessful) {
-      // Redirect to vault on success
       router.push(`/vault/${selectedVault}`);
     } else {
-      // Keep user on the page to see failed uploads
       setGeneralError("Some files failed to upload. Please review the list above.");
     }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 dark:from-gray-900 dark:to-gray-800 p-6">
+      <ProfileNav />
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
@@ -248,215 +255,27 @@ export default function UploadPage() {
           </div>
         </div>
 
-        {/* Vault Selection */}
-        <Card className="p-6 mb-6">
-          <Label className="text-lg font-medium mb-4 block">
-            Select Vault
-          </Label>
-          {generalError && ( // Use generalError here
-            <div className="p-3 text-sm text-red-600 bg-red-50 rounded-md mb-4">
-              {generalError}
-            </div>
-          )}
-          
-          {/* Owned Vaults */}
-          {vaultMemberships.filter(membership => membership.role === 'admin' || membership.role === 'owner').length > 0 && (
-            <div className="mb-6">
-              <h3 className="text-md font-medium text-gray-900 dark:text-white mb-3">Your Vaults</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {vaultMemberships
-                  .filter(membership => membership.role === 'admin' || membership.role === 'owner')
-                  .map((membership) => (
-                    <button
-                      key={membership.vaults.id}
-                      onClick={() => {
-                        setSelectedVault(membership.vaults.id);
-                        setGeneralError(""); // Clear general error when vault is selected
-                      }}
-                      className={`p-4 rounded-lg border-2 transition-all ${
-                        selectedVault === membership.vaults.id
-                          ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
-                          : "border-gray-200 dark:border-gray-700 hover:border-gray-300"
-                      }`}
-                    >
-                      <div className={`w-full h-16 ${membership.vaults.color} rounded-lg mb-3 flex items-center justify-center`}>
-                        <FaImage className="w-6 h-6 text-white opacity-50" />
-                      </div>
-                      <p className="font-medium text-gray-900 dark:text-white">
-                        {membership.vaults.name}
-                      </p>
-                    </button>
-                  ))}
-              </div>
-            </div>
-          )}
+        <VaultSelector 
+          vaultMemberships={vaultMemberships}
+          selectedVault={selectedVault}
+          onVaultSelect={handleVaultSelect}
+          error={generalError}
+        />
 
-          {/* Joined Vaults */}
-          {vaultMemberships.filter(membership => membership.role === 'member').length > 0 && (
-            <div>
-              <h3 className="text-md font-medium text-gray-900 dark:text-white mb-3">Joined Vaults</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {vaultMemberships
-                  .filter(membership => membership.role === 'member')
-                  .map((membership) => (
-                    <button
-                      key={membership.vaults.id}
-                      onClick={() => {
-                        setSelectedVault(membership.vaults.id);
-                        setGeneralError(""); // Clear general error when vault is selected
-                      }}
-                      className={`p-4 rounded-lg border-2 transition-all ${
-                        selectedVault === membership.vaults.id
-                          ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
-                          : "border-gray-200 dark:border-gray-700 hover:border-gray-300"
-                      }`}
-                    >
-                      <div className={`w-full h-16 ${membership.vaults.color} rounded-lg mb-3 flex items-center justify-center relative`}>
-                        <FaImage className="w-6 h-6 text-white opacity-50" />
-                        <Badge className="absolute -top-2 -right-2 bg-green-500 text-white text-xs px-2 py-1">
-                          <FaUsers className="w-3 h-3 mr-1" />
-                          Joined
-                        </Badge>
-                      </div>
-                      <p className="font-medium text-gray-900 dark:text-white">
-                        {membership.vaults.name}
-                      </p>
-                    </button>
-                  ))}
-              </div>
-            </div>
-          )}
+        <FileUploadArea 
+          isDragging={isDragging}
+          onDrop={handleDrop}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onFileSelect={handleFileSelect}
+        />
 
-          {vaultMemberships.length === 0 && !generalError && (
-            <p className="text-gray-600 dark:text-gray-400 mt-4">
-              No vaults found. Please create a vault first.
-            </p>
-          )}
-        </Card>
-
-        {/* File Upload Area */}
-        <Card className="p-6 mb-6">
-          <div
-            onDrop={handleDrop}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-              isDragging
-                ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
-                : "border-gray-300 dark:border-gray-600"
-            }`}
-          >
-            <FaUpload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-              Drop photos here or click to browse
-            </h3>
-            <p className="text-gray-600 dark:text-gray-400 mb-4">
-              Support for JPG, PNG, GIF up to 10MB each
-            </p>
-            <input
-              type="file"
-              multiple
-              accept="image/*"
-              onChange={(e) => e.target.files && handleFileSelect(e.target.files)}
-              className="hidden"
-              id="file-upload"
-              title="Upload photos"
-            />
-            <Button 
-              variant="outline" 
-              className="cursor-pointer"
-              onClick={() => {
-                console.log('Browse Files button clicked');
-                const fileInput = document.getElementById('file-upload');
-                console.log('File input element:', fileInput);
-                fileInput?.click();
-              }}
-            >
-              Browse Files
-            </Button>
-          </div>
-        </Card>
-
-        {/* Uploaded Files */}
-        {uploadedFiles.length > 0 && (
-          <Card className="p-6 mb-6">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-                Photos to Upload
-              </h3>
-              <Badge variant="secondary">
-                {uploadedFiles.length} files
-              </Badge>
-            </div>
-
-            <div className="space-y-4">
-              {uploadedFiles.map((file) => (
-                <div key={file.id} className={`flex gap-4 p-4 border rounded-lg items-center ${
-                  file.status === 'failed' ? 'border-red-400 bg-red-50 dark:bg-red-900/20' :
-                  file.status === 'success' ? 'border-green-400 bg-green-50 dark:bg-green-900/20' :
-                  file.status === 'uploading' ? 'border-blue-400 bg-blue-50 dark:bg-blue-900/20' :
-                  file.status === 'skipped' ? 'border-yellow-400 bg-yellow-50 dark:bg-yellow-900/20' :
-                  '' // Default border
-                }`}>
-                  {file.preview && ( // Only show preview for valid files
-                    <img
-                      src={file.preview}
-                      alt={file.title}
-                      className="w-20 h-20 object-cover rounded-lg"
-                    />
-                  )}
-                  {!file.preview && ( // Placeholder for skipped files
-                    <div className="w-20 h-20 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center">
-                      <FaImage className="w-8 h-8 text-gray-400" />
-                    </div>
-                  )}
-                  <div className="flex-1 space-y-2">
-                    <div className="font-medium text-gray-900 dark:text-white">
-                      {file.title}
-                      {file.status === 'uploading' && <span className="ml-2 text-blue-600 text-sm">Uploading...</span>}
-                      {file.status === 'success' && <span className="ml-2 text-green-600 text-sm">Success</span>}
-                      {file.status === 'failed' && <span className="ml-2 text-red-600 text-sm">Failed</span>}
-                      {file.status === 'skipped' && <span className="ml-2 text-yellow-600 text-sm">Skipped</span>}
-                    </div>
-                    {file.status !== 'skipped' ? (
-                      <>
-                        <Input
-                          value={file.title}
-                          onChange={(e) => updateFileInfo(file.id, 'title', e.target.value)}
-                          placeholder="Photo title"
-                          className="font-medium"
-                          disabled={isUploading} // Disable input during upload
-                        />
-                        <Textarea
-                          value={file.description}
-                          onChange={(e) => updateFileInfo(file.id, 'description', e.target.value)}
-                          placeholder="Add a description (optional)"
-                          rows={2}
-                          disabled={isUploading} // Disable input during upload
-                        />
-                      </>
-                    ) : (
-                      <p className="text-sm text-gray-600 dark:text-gray-400 italic">{file.description}</p>
-                    )}
-                    {file.errorMessage && (
-                      <p className="text-sm text-red-600">{file.errorMessage}</p>
-                    )}
-                  </div>
-                  {file.status !== 'uploading' && ( // Don't show remove button during upload
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => removeFile(file.id)}
-                      className="text-red-500 hover:text-red-700"
-                    >
-                      <FaTrash className="w-4 h-4" />
-                    </Button>
-                  )}
-                </div>
-              ))}
-            </div>
-          </Card>
-        )}
+        <FileList 
+          files={uploadedFiles}
+          isUploading={isUploading}
+          onRemoveFile={removeFile}
+          onUpdateFile={updateFileInfo}
+        />
 
         {/* Upload Button */}
         <div className="flex justify-end gap-4">
@@ -465,7 +284,7 @@ export default function UploadPage() {
           </Button>
           <Button
             onClick={handleUpload}
-            disabled={!selectedVault || uploadedFiles.filter(f => f.status === 'pending').length === 0 || isUploading} // Disable if no pending files
+            disabled={!selectedVault || uploadedFiles.filter(f => f.status === 'pending').length === 0 || isUploading}
             className="flex items-center gap-2"
           >
             <FaUpload className="w-4 h-4" />
