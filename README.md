@@ -4,7 +4,7 @@
 ### *Preserve Your Precious Moments Forever*
 
 <div align="center">
-  <img src="https://img.shields.io/badge/Version-0.70-ff6b6b?style=for-the-badge&logo=semantic-release&logoColor=white" alt="Version 0.70">
+  <img src="https://img.shields.io/badge/Version-0.75-ff6b6b?style=for-the-badge&logo=semantic-release&logoColor=white" alt="Version 0.75">
   <img src="https://img.shields.io/badge/Release-June%202025-4ecdc4?style=for-the-badge&logo=calendar&logoColor=white" alt="Release Date">
   <img src="https://img.shields.io/badge/License-MIT-45b7d1?style=for-the-badge&logo=opensourceinitiative&logoColor=white" alt="MIT License">
 </div>
@@ -424,7 +424,7 @@ copies or substantial portions of the Software.
 <div align="center">
 <h3>💝 Made with Love for Families Everywhere</h3>
 
-**Family Memories v0.70** | **June 2025**
+**Family Memories v0.75** | **June 2025**
 
 *Preserving moments, creating connections, building legacies.*
 
@@ -461,7 +461,7 @@ copies or substantial portions of the Software.
 
 <div align="center">
 
-### 🎉 **Latest Release - v0.70 (June 2025)**
+### 🎉 **Latest Release - v0.75 (June 2025)**
 *Enhanced UI/UX, Comprehensive Documentation & GitHub Integration*
 
 </div>
