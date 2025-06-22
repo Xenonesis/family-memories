@@ -14,14 +14,29 @@ interface Vault {
   color: string;
   created_at: string;
   created_by: string;
+  photo_count?: number;
+  creator_name?: string;
 }
 
 interface VaultGridProps {
   vaults: Vault[];
   viewMode: 'grid' | 'list';
+  photoCounts?: Record<string, number>;
 }
 
-export function VaultGrid({ vaults, viewMode }: VaultGridProps) {
+export function VaultGrid({ vaults, viewMode, photoCounts = {} }: VaultGridProps) {
+  const getPhotoCount = (vault: Vault) => {
+    // Priority: photoCounts prop > vault.photo_count > 0
+    if (photoCounts[vault.id] !== undefined) {
+      return photoCounts[vault.id];
+    }
+    return vault.photo_count || 0;
+  };
+
+  const getCreatorName = (vault: Vault) => {
+    return vault.creator_name || 'Unknown';
+  };
+
   const container = {
     hidden: { opacity: 0 },
     show: {
@@ -88,11 +103,11 @@ export function VaultGrid({ vaults, viewMode }: VaultGridProps) {
                           <div className="flex items-center gap-4 text-sm text-gray-500">
                             <div className="flex items-center gap-1">
                               <FaImage className="w-3 h-3" />
-                              <span>12 photos</span>
+                              <span>{getPhotoCount(vault)} photos</span>
                             </div>
                             <div className="flex items-center gap-1">
                               <FaUsers className="w-3 h-3" />
-                              <span>Family</span>
+                              <span>{getCreatorName(vault)}</span>
                             </div>
                             <div className="flex items-center gap-1">
                               <FaClock className="w-3 h-3" />
@@ -100,9 +115,22 @@ export function VaultGrid({ vaults, viewMode }: VaultGridProps) {
                             </div>
                           </div>
                           
-                          <Button variant="outline" size="sm">
-                            <FaEye className="w-3 h-3 mr-2" /> View Vault
-                          </Button>
+                          <div className="flex items-center gap-2">
+                            {/* Activity indicator for recent vaults */}
+                            {(() => {
+                              const weekAgo = new Date();
+                              weekAgo.setDate(weekAgo.getDate() - 7);
+                              return new Date(vault.created_at) > weekAgo;
+                            })() && (
+                              <div className="flex items-center gap-1 text-xs text-green-600 bg-green-100 dark:bg-green-900/30 px-2 py-1 rounded-full">
+                                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                                <span>New</span>
+                              </div>
+                            )}
+                            <Button variant="outline" size="sm">
+                              <FaEye className="w-3 h-3 mr-2" /> View Vault
+                            </Button>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -181,11 +209,11 @@ export function VaultGrid({ vaults, viewMode }: VaultGridProps) {
                     <div className="absolute bottom-4 left-4 right-4 flex justify-between items-center">
                       <div className="flex items-center space-x-1 text-white/90">
                         <FaUsers className="w-3 h-3" />
-                        <span className="text-xs font-medium">Family</span>
+                        <span className="text-xs font-medium">{getCreatorName(vault)}</span>
                       </div>
                       <div className="flex items-center space-x-1 text-white/90">
                         <FaImage className="w-3 h-3" />
-                        <span className="text-xs font-medium">12 photos</span>
+                        <span className="text-xs font-medium">{getPhotoCount(vault)} photos</span>
                       </div>
                     </div>
                   </div>
@@ -224,9 +252,20 @@ export function VaultGrid({ vaults, viewMode }: VaultGridProps) {
                 </CardHeader>
                 
                 <CardFooter className="pt-0 flex items-center justify-between">
-                  <div className="flex items-center text-xs text-gray-500">
+                  <div className="flex items-center gap-2 text-xs text-gray-500">
                     <FaClock className="w-3 h-3 mr-1" />
                     {new Date(vault.created_at).toLocaleDateString()}
+                    {/* Activity indicator for recent vaults */}
+                    {(() => {
+                      const weekAgo = new Date();
+                      weekAgo.setDate(weekAgo.getDate() - 7);
+                      return new Date(vault.created_at) > weekAgo;
+                    })() && (
+                      <div className="flex items-center gap-1 text-green-600 bg-green-100 dark:bg-green-900/30 px-2 py-1 rounded-full ml-2">
+                        <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
+                        <span className="text-xs">New</span>
+                      </div>
+                    )}
                   </div>
                   <Button variant="outline" size="sm">
                     <FaEye className="w-3 h-3 mr-2" /> View

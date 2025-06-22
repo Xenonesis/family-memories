@@ -27,11 +27,39 @@ export const getUserVaults = async (userId: string) => {
         description,
         color,
         created_at,
-        created_by
+        created_by,
+        photos (count)
       )
     `)
     .eq('user_id', userId)
   return { data, error }
+}
+
+// Get vault photo count
+export const getVaultPhotoCount = async (vaultId: string) => {
+  const { count, error } = await supabase
+    .from('photos')
+    .select('*', { count: 'exact', head: true })
+    .eq('vault_id', vaultId)
+  return { count, error }
+}
+
+// Get all vault photo counts for a user
+export const getVaultPhotoCounts = async (vaultIds: string[]) => {
+  const { data, error } = await supabase
+    .from('photos')
+    .select('vault_id')
+    .in('vault_id', vaultIds)
+  
+  if (error) return { data: null, error }
+  
+  // Count photos per vault
+  const counts = vaultIds.reduce((acc: Record<string, number>, vaultId) => {
+    acc[vaultId] = data?.filter(photo => photo.vault_id === vaultId).length || 0
+    return acc
+  }, {})
+  
+  return { data: counts, error: null }
 }
 
 // Photo operations
