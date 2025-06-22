@@ -9,7 +9,8 @@ import { getProfile, Profile } from "@/lib/profile";
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from "@/lib/supabase";
 import { UserProfile } from "@/components/auth/UserProfile";
-import { AuthForm } from "../../components/auth/AuthForm";
+import { AuthForm } from "@/components/auth/AuthForm";
+import { BeamsBackground } from "@/components/ui/beams-background";
 
 export default function AuthPage() {
   const router = useRouter();
@@ -96,15 +97,8 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      {/* Animated Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-indigo-900 dark:to-purple-900">
-        <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]" />
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse" />
-        <div className="absolute top-3/4 right-1/4 w-96 h-96 bg-gradient-to-r from-blue-400 to-indigo-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-1000" />
-        <div className="absolute bottom-1/4 left-1/3 w-96 h-96 bg-gradient-to-r from-green-400 to-blue-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse delay-2000" />
-      </div>
-
+    <div className="relative min-h-screen w-full overflow-hidden">
+      <BeamsBackground className="absolute inset-0 z-0" intensity="medium" />
       <div className="relative z-10 min-h-screen flex flex-col items-center justify-center p-4">
         <ProfileNav />
         
@@ -176,4 +170,4 @@ export default function AuthPage() {
       </div>
     </div>
   );
-}// Force refresh
+}

@@ -6,11 +6,16 @@ import { FaBell, FaLock } from "react-icons/fa";
 
 interface SettingsCardsProps {
   formData: {
+    full_name: string;
+    phone_number: string;
+    bio: string;
+    gender: string;
+    avatar_url: string;
     notifications_enabled: boolean;
     email_updates_enabled: boolean;
     two_factor_enabled: boolean;
   };
-  onChange: (field: string, value: boolean) => void;
+  onChange: (field: string, value: string | boolean) => void;
 }
 
 export function SettingsCards({ formData, onChange }: SettingsCardsProps) {

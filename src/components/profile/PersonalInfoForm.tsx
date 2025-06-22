@@ -9,11 +9,13 @@ interface PersonalInfoFormProps {
     phone_number: string;
     bio: string;
     gender: string;
+    avatar_url: string;
+    notifications_enabled: boolean;
+    email_updates_enabled: boolean;
+    two_factor_enabled: boolean;
   };
-  user: {
-    email: string;
-  };
-  onChange: (field: string, value: string) => void;
+  user: { id: string; email: string } | null;
+  onChange: (field: string, value: string | boolean) => void;
 }
 
 export function PersonalInfoForm({ formData, user, onChange }: PersonalInfoFormProps) {
@@ -45,7 +47,7 @@ export function PersonalInfoForm({ formData, user, onChange }: PersonalInfoFormP
           <Input
             id="email"
             type="email"
-            value={user.email || ''}
+            value={user?.email || ''}
             disabled
             className="h-12 bg-gray-100 dark:bg-gray-800 border-gray-200 dark:border-gray-600"
           />

@@ -8,6 +8,7 @@ import { FaUser, FaBell, FaPlus, FaUpload, FaFolder, FaCog, FaSignOutAlt } from 
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { User } from '@supabase/auth-js/dist/module/lib/types';
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 interface DashboardHeaderProps {
   user: User | null;
@@ -128,6 +129,10 @@ export function DashboardHeader({ user, recentUploads, showQuickActions, setShow
                 </Badge>
               )}
             </Button>
+          </motion.div>
+
+          <motion.div variants={item}>
+            <ThemeToggle />
           </motion.div>
         </motion.div>
       </div>

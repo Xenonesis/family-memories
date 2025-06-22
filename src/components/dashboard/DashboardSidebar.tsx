@@ -113,6 +113,7 @@ export function DashboardSidebar({ recentPhotos, stats }: DashboardSidebarProps)
                       src={photo.file_url} 
                       alt={photo.title}
                       fill
+                      sizes="48px"
                       className="object-cover"
                     />
                   </div>

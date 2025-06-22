@@ -5,7 +5,9 @@ import { useRouter } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { getProfile, updateProfile } from "@/lib/profile";
 import { supabase } from "@/lib/supabase";
+import { getUserVaults } from "@/lib/database";
 import { ProfileLayout } from "@/components/profile/ProfileLayout";
+import { VaultMember } from '@/lib/types';
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -13,6 +15,7 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [user, setUser] = useState<{ id: string; email: string } | null>(null);
+  const [storageInfo, setStorageInfo] = useState({ usedMb: 0, totalMb: 1024, usedPercentage: 0, availableMb: 1024 });
   const [formData, setFormData] = useState({
     full_name: "",
     phone_number: "",
@@ -25,15 +28,16 @@ export default function ProfilePage() {
   });
 
   const loadUserAndProfile = useCallback(async () => {
+    setLoading(true);
     try {
       const currentUser = await getCurrentUser();
       if (!currentUser) {
         router.push('/auth');
         return;
       }
-
       setUser({ id: currentUser.id, email: currentUser.email || '' });
-      
+
+      // Fetch profile data
       const userProfile = await getProfile(currentUser.id);
       if (userProfile) {
         setFormData({
@@ -45,6 +49,37 @@ export default function ProfilePage() {
           notifications_enabled: userProfile.notifications_enabled,
           email_updates_enabled: userProfile.email_updates_enabled,
           two_factor_enabled: userProfile.two_factor_enabled,
+        });
+      }
+
+      // Fetch vaults and calculate storage
+      const { data: vaultMembers, error: vaultsError } = await getUserVaults(currentUser.id);
+      if (vaultsError) {
+        console.error('Error fetching user vaults:', vaultsError);
+      } else if (vaultMembers) {
+        const totalPhotos = (vaultMembers as VaultMember[]).reduce((acc, member) => {
+          if (member.vaults && Array.isArray(member.vaults)) {
+            const memberPhotoCount = member.vaults.reduce((vaultAcc, vault) => {
+              if (vault && vault.photos && vault.photos.length > 0) {
+                return vaultAcc + (vault.photos[0].count || 0);
+              }
+              return vaultAcc;
+            }, 0);
+            return acc + memberPhotoCount;
+          }
+          return acc;
+        }, 0);
+
+        const usedMb = totalPhotos * 2.5; // 2.5MB per photo
+        const totalMb = 1024; // 1GB
+        const usedPercentage = Math.min((usedMb / totalMb) * 100, 100);
+        const availableMb = totalMb - usedMb;
+
+        setStorageInfo({
+          usedMb,
+          totalMb,
+          usedPercentage,
+          availableMb,
         });
       }
     } catch (error) {
@@ -115,6 +150,7 @@ export default function ProfilePage() {
       user={user}
       uploadingImage={uploadingImage}
       saving={saving}
+      storageInfo={storageInfo}
       onBack={() => router.back()}
       onSave={handleSave}
       onImageUpload={handleImageUpload}

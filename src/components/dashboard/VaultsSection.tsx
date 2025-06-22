@@ -14,6 +14,7 @@ interface Vault {
   color: string;
   created_at: string;
   created_by: string;
+  photo_count: number;
 }
 
 interface VaultsSectionProps {
@@ -101,7 +102,7 @@ export function VaultsSection({ vaults }: VaultsSectionProps) {
                         </div>
                         <div className="flex items-center space-x-1 text-white/90">
                           <FaImage className="w-3 h-3" />
-                          <span className="text-xs font-medium">12 photos</span>
+                          <span className="text-xs font-medium">{vault.photo_count} {vault.photo_count === 1 ? 'photo' : 'photos'}</span>
                         </div>
                       </div>
                     </div>

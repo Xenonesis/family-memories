@@ -9,11 +9,13 @@ interface ProfileCardProps {
     full_name: string;
     phone_number: string;
     bio: string;
+    gender: string;
     avatar_url: string;
+    notifications_enabled: boolean;
+    email_updates_enabled: boolean;
+    two_factor_enabled: boolean;
   };
-  user: {
-    email: string;
-  };
+  user: { id: string; email: string } | null;
   uploadingImage: boolean;
   onImageUpload: (file: File) => void;
 }
@@ -46,6 +48,7 @@ export function ProfileCard({ formData, user, uploadingImage, onImageUpload }: P
             onClick={() => fileInputRef.current?.click()}
             disabled={uploadingImage}
             className="absolute -bottom-2 -right-2 rounded-full w-10 h-10 p-0 bg-blue-600 hover:bg-blue-700"
+            aria-label="Edit profile picture"
           >
             {uploadingImage ? (
               <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
