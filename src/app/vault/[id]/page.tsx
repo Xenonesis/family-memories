@@ -16,6 +16,7 @@ import Link from "next/link";
 import { ProfileNav } from "@/components/ProfileNav";
 import { VaultHeader } from "@/components/vault/VaultHeader";
 import { PhotoGrid } from "@/components/vault/PhotoGrid";
+import RadialOrbitalTimeline from "@/components/ui/radial-orbital-timeline";
 import { motion } from "framer-motion";
 
 interface VaultPageProps {
@@ -55,7 +56,19 @@ export default function VaultDetailPage({ params }: VaultPageProps) {
   const [isSelectionMode, setIsSelectionMode] = useState(false);
 
   // Unwrap params using React.use()
-  const { id: vaultId } = React.use(params);
+    const { id: vaultId } = React.use(params);
+
+  const timelineData = photos.map((photo, index) => ({
+    id: index + 1,
+    title: photo.title,
+    date: new Date(photo.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
+    content: photo.description || 'No description available.',
+    category: 'Photo',
+    icon: FaImage,
+    relatedIds: [],
+    status: 'completed' as const,
+    energy: 100,
+  }));
 
   useEffect(() => {
     const loadVaultData = async () => {
@@ -326,14 +339,17 @@ export default function VaultDetailPage({ params }: VaultPageProps) {
           </TabsContent>
           
           <TabsContent value="timeline" className="mt-0">
-            <div className="space-y-8">
-              {/* Timeline view would be implemented here */}
+            {photos.length > 0 ? (
+              <div className="w-full h-[600px] relative">
+                 <RadialOrbitalTimeline timelineData={timelineData} />
+              </div>
+            ) : (
               <Card className="p-8 text-center bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/10 dark:to-indigo-900/10 border-0 shadow-md">
                 <FaCalendar className="w-12 h-12 text-blue-500 mx-auto mb-4" />
                 <h3 className="text-xl font-bold mb-2">Timeline View</h3>
-                <p className="text-gray-600 dark:text-gray-400">View your photos organized by date and time</p>
+                <p className="text-gray-600 dark:text-gray-400">No photos in this vault to display on the timeline.</p>
               </Card>
-            </div>
+            )}
           </TabsContent>
           
           <TabsContent value="slideshow" className="mt-0">

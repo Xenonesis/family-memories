@@ -5,7 +5,7 @@ export interface PhotoCount {
 export interface VaultFromMember {
     id: string;
     name: string;
-    description: string;
+    description?: string;
     color: string;
     created_at: string;
     created_by: string;
@@ -15,4 +15,17 @@ export interface VaultFromMember {
 export interface VaultMember {
     role: string;
     vaults: VaultFromMember[];
+}
+
+export interface UserVaultResponse {
+    role: string;
+    vaults: {
+        id: string;
+        name: string;
+        description?: string;
+        color: string;
+        created_at: string;
+        created_by: string;
+        photos: PhotoCount[];
+    };
 }

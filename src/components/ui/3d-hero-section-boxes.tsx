@@ -3,40 +3,18 @@
 import React, { useEffect, useRef } from 'react';
 import Spline from '@splinetool/react-spline';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Plus, Phone } from 'lucide-react';
 
 function HeroSplineBackground() {
   return (
-    <div style={{
-      position: 'relative',
-      width: '100%',
-      height: '100vh',
-      pointerEvents: 'auto',
-      overflow: 'hidden',
-    }}>
+    <div className="hero-spline-container">
       <Spline
-        style={{
-          width: '100%',
-          height: '100vh',
-          pointerEvents: 'auto',
-        }}
+        className="hero-spline-canvas"
         scene="https://prod.spline.design/dJqTIQ-tE3ULUPMi/scene.splinecode"
       />
-      <div
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100vh',
-          background: `
-            linear-gradient(to right, rgba(0, 0, 0, 0.8), transparent 30%, transparent 70%, rgba(0, 0, 0, 0.8)),
-            linear-gradient(to bottom, transparent 50%, rgba(0, 0, 0, 0.9))
-          `,
-          pointerEvents: 'none',
-        }}
-      />
+      <div className="hero-spline-overlay" />
     </div>
   );
 }
@@ -46,9 +24,11 @@ function ScreenshotSection({ screenshotRef }: { screenshotRef: React.RefObject<H
     <section className="relative z-10 container mx-auto px-4 md:px-6 lg:px-8 mt-11 md:mt-12">
       <div ref={screenshotRef} className="bg-gray-900 rounded-xl overflow-hidden shadow-2xl border border-gray-700/50 w-full md:w-[80%] lg:w-[70%] mx-auto">
         <div>
-          <img
+          <Image
             src="https://images.unsplash.com/photo-1551434678-e076c223a692?w=1200&h=800&fit=crop"
             alt="Family Memories App Screenshot"
+            width={1200}
+            height={800}
             className="w-full h-auto block rounded-lg mx-auto"
           />
         </div>
@@ -99,10 +79,10 @@ function HeroContent() {
 
 function HeroNavbar() {
   return (
-    <nav className="fixed top-0 left-0 right-0 z-20" style={{ backgroundColor: 'rgba(13, 13, 24, 0.3)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)', borderRadius: '0 0 0.75rem 0.75rem' }}>
+    <nav className="fixed top-0 left-0 right-0 z-20 hero-nav-glass">
       <div className="container mx-auto px-4 py-4 md:px-6 lg:px-8 flex items-center justify-between">
         <div className="flex items-center space-x-6 lg:space-x-8">
-          <div className="text-white" style={{ width: '32px', height: '32px' }}>
+          <div className="text-white hero-nav-icon">
             <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path fillRule="evenodd" clipRule="evenodd" d="M16 32C24.8366 32 32 24.8366 32 16C32 7.16344 24.8366 0 16 0C7.16344 0 0 7.16344 0 16C0 24.8366 7.16344 32 16 32ZM12.4306 9.70695C12.742 9.33317 13.2633 9.30058 13.6052 9.62118L19.1798 14.8165C19.4894 15.1054 19.4894 15.5841 19.1798 15.873L13.6052 21.0683C13.2633 21.3889 12.742 21.3563 12.4306 19.9991V9.70695Z" fill="currentColor" />
             </svg>
@@ -174,15 +154,12 @@ const HeroSection = () => {
           <HeroSplineBackground />
         </div>
 
-        <div ref={heroContentRef} style={{
-          position: 'absolute', top: 0, left: 0, width: '100%', height: '100vh',
-          display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 10, pointerEvents: 'none'
-        }}>
+        <div ref={heroContentRef} className="hero-content-positioned">
           <HeroContent />
         </div>
       </div>
 
-      <div className="bg-black relative z-10" style={{ marginTop: '-10vh' }}>
+      <div className="bg-black relative z-10 hero-section-margin">
         <ScreenshotSection screenshotRef={screenshotRef} />
         <div className="container mx-auto px-4 py-16 text-white">
           <h2 className="text-4xl font-bold text-center mb-8">Your Family Stories Matter</h2>

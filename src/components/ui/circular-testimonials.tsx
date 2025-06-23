@@ -6,6 +6,7 @@ import React, {
   useMemo,
   useCallback,
 } from "react";
+import Image from "next/image";
 import { FaArrowLeft, FaArrowRight } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -180,10 +181,12 @@ export const CircularTestimonials = ({
         {/* Images */}
         <div className="image-container" ref={imageContainerRef}>
           {testimonials.map((testimonial, index) => (
-            <img
+            <Image
               key={testimonial.src}
               src={testimonial.src}
               alt={testimonial.name}
+              width={150}
+              height={150}
               className="testimonial-image"
               data-index={index}
               style={getImageStyle(index)}
@@ -202,13 +205,13 @@ export const CircularTestimonials = ({
               transition={{ duration: 0.3, ease: "easeInOut" }}
             >
               <h3
-                className="name"
+                className="name testimonial-content-style"
                 style={{ color: colorName, fontSize: fontSizeName }}
               >
                 {activeTestimonial.name}
               </h3>
               <p
-                className="designation"
+                className="designation testimonial-content-style"
                 style={{ color: colorDesignation, fontSize: fontSizeDesignation }}
               >
                 {activeTestimonial.designation}
@@ -245,7 +248,7 @@ export const CircularTestimonials = ({
           </AnimatePresence>
           <div className="arrow-buttons">
             <button
-              className="arrow-button prev-button"
+              className="arrow-button prev-button testimonial-nav-button testimonial-nav-left"
               onClick={handlePrev}
               style={{
                 backgroundColor: hoverPrev ? colorArrowHoverBg : colorArrowBg,
@@ -257,7 +260,7 @@ export const CircularTestimonials = ({
               <FaArrowLeft size={28} color={colorArrowFg} />
             </button>
             <button
-              className="arrow-button next-button"
+              className="arrow-button next-button testimonial-nav-button testimonial-nav-right"
               onClick={handleNext}
               style={{
                 backgroundColor: hoverNext ? colorArrowHoverBg : colorArrowBg,

@@ -17,6 +17,21 @@ import { VaultGrid } from "@/components/vault/VaultGrid";
 import { VaultStats } from "@/components/vault/VaultStats";
 import { motion } from "framer-motion";
 
+interface VaultFromDB {
+  id: string;
+  name: string;
+  description: string;
+  color: string;
+  created_at: string;
+  created_by: string;
+  photos: { count: number }[];
+}
+
+interface UserVaultLinkFromDB {
+  role: string;
+  vaults: VaultFromDB[];
+}
+
 interface Vault {
   id: string;
   name: string;
@@ -86,11 +101,13 @@ export default function VaultPage() {
       try {
         const { data, error } = await getUserVaults(currentUser.id);
         if (!error && data) {
-          const vaultData = data.map((item: { vaults: Vault; role: string }) => ({
-            ...item.vaults,
-            role: item.role,
-            photo_count: item.vaults.photos[0]?.count || 0,
-          }));
+          const vaultData = (data as UserVaultLinkFromDB[]).flatMap(item => 
+            item.vaults.map((vault: VaultFromDB) => ({
+              ...vault,
+              role: item.role,
+              photo_count: vault.photos[0]?.count || 0,
+            }))
+          );
 
           setVaults(vaultData);
 
