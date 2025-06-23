@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { FaPlus, FaArrowLeft, FaHome, FaFolder, FaUsers, FaSearch, FaClock, FaHeart, FaFilter, FaSort, FaTh, FaList, FaImage } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
-import { getUserVaults, getVaultPhotoCounts } from "@/lib/database";
+import { getUserVaults } from "@/lib/database";
 import Link from "next/link";
 import { ProfileNav } from "@/components/ProfileNav";
 import { VaultGrid } from "@/components/vault/VaultGrid";
@@ -86,135 +86,24 @@ export default function VaultPage() {
       try {
         const { data, error } = await getUserVaults(currentUser.id);
         if (!error && data) {
-          const vaultData = data.flatMap((item: { vaults: Vault[] }) => item.vaults);
-          
-          // If no vaults exist, create some sample data
-          if (vaultData.length === 0) {
-            const sampleVaults: Vault[] = [
-              {
-                id: 'sample-1',
-                name: 'Family Memories',
-                description: 'Our precious family moments and celebrations throughout the years',
-                color: 'bg-gradient-to-br from-blue-500 via-blue-600 to-purple-600',
-                created_at: '2025-06-21T10:00:00Z',
-                created_by: currentUser.id,
-                photo_count: 24,
-                creator_name: 'You'
-              },
-              {
-                id: 'sample-2',
-                name: 'Summer Vacation 2025',
-                description: 'Amazing memories from our mountain retreat and beach adventures',
-                color: 'bg-gradient-to-br from-emerald-500 via-teal-600 to-cyan-600',
-                created_at: '2025-06-22T15:30:00Z',
-                created_by: currentUser.id,
-                photo_count: 18,
-                creator_name: 'You'
-              },
-              {
-                id: 'sample-3',
-                name: 'Kids Growing Up',
-                description: 'Capturing every milestone as our children grow and learn',
-                color: 'bg-gradient-to-br from-pink-500 via-rose-600 to-red-600',
-                created_at: '2025-06-20T09:15:00Z',
-                created_by: 'mom-user-id',
-                photo_count: 35,
-                creator_name: 'Mom'
-              },
-              {
-                id: 'sample-4',
-                name: 'Wedding Anniversary',
-                description: 'Celebrating love and special moments from our anniversary',
-                color: 'bg-gradient-to-br from-amber-500 via-orange-600 to-red-600',
-                created_at: '2025-06-19T14:20:00Z',
-                created_by: 'dad-user-id',
-                photo_count: 12,
-                creator_name: 'Dad'
-              },
-              {
-                id: 'sample-5',
-                name: 'Holiday Traditions',
-                description: 'Christmas, birthdays, and family gatherings throughout the year',
-                color: 'bg-gradient-to-br from-indigo-500 via-purple-600 to-pink-600',
-                created_at: '2025-06-18T11:45:00Z',
-                created_by: currentUser.id,
-                photo_count: 28,
-                creator_name: 'You'
-              },
-              {
-                id: 'sample-6',
-                name: 'Pet Adventures',
-                description: 'Funny and adorable moments with our beloved family pets',
-                color: 'bg-gradient-to-br from-green-500 via-emerald-600 to-teal-600',
-                created_at: '2025-06-17T16:30:00Z',
-                created_by: 'sibling-user-id',
-                photo_count: 15,
-                creator_name: 'Alex'
-              }
-            ];
-            
-            setVaults(sampleVaults);
-            
-            // Set photo counts for sample data to match the vault photo_count
-            const counts: Record<string, number> = {};
-            sampleVaults.forEach(vault => {
-              counts[vault.id] = vault.photo_count || 0;
-            });
-            setPhotoCounts(counts);
-          } else {
-            setVaults(vaultData);
-            
-            // Get photo counts for real vaults
-            const vaultIds = vaultData.map((vault: Vault) => vault.id);
-            const { data: counts, error: countError } = await getVaultPhotoCounts(vaultIds);
-            if (!countError && counts) {
-              setPhotoCounts(counts);
-            }
-          }
+          const vaultData = data.map((item: { vaults: Vault; role: string }) => ({
+            ...item.vaults,
+            role: item.role,
+            photo_count: item.vaults.photos[0]?.count || 0,
+          }));
+
+          setVaults(vaultData);
+
+          const photoCounts = vaultData.reduce((acc: Record<string, number>, vault: Vault) => {
+            acc[vault.id] = vault.photo_count || 0;
+            return acc;
+          }, {});
+          setPhotoCounts(photoCounts);
+        } else if (error) {
+          console.error("Error fetching vaults:", error);
         }
       } catch (error) {
         console.error('Error loading vaults:', error);
-        
-        // Fallback to sample data on error
-        const sampleVaults: Vault[] = [
-          {
-            id: 'sample-1',
-            name: 'Family Memories',
-            description: 'Our precious family moments and celebrations throughout the years',
-            color: 'bg-gradient-to-br from-blue-500 via-blue-600 to-purple-600',
-            created_at: '2025-06-21T10:00:00Z',
-            created_by: 'sample-user',
-            photo_count: 24,
-            creator_name: 'You'
-          },
-          {
-            id: 'sample-2',
-            name: 'Summer Vacation 2025',
-            description: 'Amazing memories from our mountain retreat and beach adventures',
-            color: 'bg-gradient-to-br from-emerald-500 via-teal-600 to-cyan-600',
-            created_at: '2025-06-22T15:30:00Z',
-            created_by: 'sample-user',
-            photo_count: 18,
-            creator_name: 'You'
-          },
-          {
-            id: 'sample-3',
-            name: 'Kids Growing Up',
-            description: 'Capturing every milestone as our children grow and learn',
-            color: 'bg-gradient-to-br from-pink-500 via-rose-600 to-red-600',
-            created_at: '2025-06-20T09:15:00Z',
-            created_by: 'mom-user-id',
-            photo_count: 35,
-            creator_name: 'Mom'
-          }
-        ];
-        
-        setVaults(sampleVaults);
-        const counts: Record<string, number> = {};
-        sampleVaults.forEach(vault => {
-          counts[vault.id] = vault.photo_count || 0;
-        });
-        setPhotoCounts(counts);
       } finally {
         setLoading(false);
       }

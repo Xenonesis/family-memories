@@ -1,6 +1,6 @@
 {
   "name": "family-memories",
-  "version": "0.80.0",
+  "version": "0.90",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",

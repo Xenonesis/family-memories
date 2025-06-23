@@ -13,23 +13,19 @@ interface Vault {
   color: string;
   created_by: string;
   created_at: string;
-}
-
-interface VaultMembership {
   role: string;
-  vaults: Vault;
 }
 
 interface VaultSelectorProps {
-  vaultMemberships: VaultMembership[];
+  vaults: Vault[];
   selectedVault: string;
   onVaultSelect: (vaultId: string) => void;
   error: string;
 }
 
-export function VaultSelector({ vaultMemberships, selectedVault, onVaultSelect, error }: VaultSelectorProps) {
-  const ownedVaults = vaultMemberships.filter(membership => membership.role === 'admin' || membership.role === 'owner');
-  const joinedVaults = vaultMemberships.filter(membership => membership.role === 'member');
+export function VaultSelector({ vaults, selectedVault, onVaultSelect, error }: VaultSelectorProps) {
+  const ownedVaults = vaults.filter(vault => vault.role === 'admin' || vault.role === 'owner');
+  const joinedVaults = vaults.filter(vault => vault.role === 'member');
 
   const container = {
     hidden: { opacity: 0 },
@@ -89,33 +85,33 @@ export function VaultSelector({ vaultMemberships, selectedVault, onVaultSelect, 
                 animate="show"
                 className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"
               >
-                {ownedVaults.map((membership) => (
+                {ownedVaults.map((vault) => (
                   <motion.button
-                    key={membership.vaults.id}
+                    key={vault.id}
                     variants={item}
-                    onClick={() => onVaultSelect(membership.vaults.id)}
+                    onClick={() => onVaultSelect(vault.id)}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className={`p-0 rounded-xl overflow-hidden transition-all shadow-sm ${selectedVault === membership.vaults.id
+                    className={`p-0 rounded-xl overflow-hidden transition-all shadow-sm ${selectedVault === vault.id
                       ? "ring-2 ring-violet-500 shadow-md"
                       : "hover:shadow-md"}`}
                   >
-                    <div className={`w-full h-24 ${membership.vaults.color} relative`}>
+                    <div className={`w-full h-24 ${vault.color} relative`}>
                       <div className="absolute inset-0 bg-gradient-to-b from-black/10 to-black/40 flex items-center justify-center">
                         <FaFolder className="w-12 h-12 text-white/90" />
                       </div>
-                      {selectedVault === membership.vaults.id && (
-                        <div className="absolute top-2 right-2 w-6 h-6 bg-violet-600 rounded-full flex items-center justify-center">
+                      {selectedVault === vault.id && (
+                        <div className="absolute bottom-2 right-2 w-6 h-6 bg-violet-600 rounded-full flex items-center justify-center">
                           <FaCheck className="w-3 h-3 text-white" />
                         </div>
                       )}
                     </div>
                     <div className="p-4 bg-white dark:bg-gray-800">
                       <p className="font-medium text-gray-900 dark:text-white text-left">
-                        {membership.vaults.name}
+                        {vault.name}
                       </p>
                       <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 text-left">
-                        {new Date(membership.vaults.created_at).toLocaleDateString()}
+                        {new Date(vault.created_at).toLocaleDateString()}
                       </p>
                     </div>
                   </motion.button>
@@ -135,18 +131,18 @@ export function VaultSelector({ vaultMemberships, selectedVault, onVaultSelect, 
                 animate="show"
                 className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"
               >
-                {joinedVaults.map((membership) => (
+                {joinedVaults.map((vault) => (
                   <motion.button
-                    key={membership.vaults.id}
+                    key={vault.id}
                     variants={item}
-                    onClick={() => onVaultSelect(membership.vaults.id)}
+                    onClick={() => onVaultSelect(vault.id)}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className={`p-0 rounded-xl overflow-hidden transition-all shadow-sm ${selectedVault === membership.vaults.id
+                    className={`p-0 rounded-xl overflow-hidden transition-all shadow-sm ${selectedVault === vault.id
                       ? "ring-2 ring-emerald-500 shadow-md"
                       : "hover:shadow-md"}`}
                   >
-                    <div className={`w-full h-24 ${membership.vaults.color} relative`}>
+                    <div className={`w-full h-24 ${vault.color} relative`}>
                       <div className="absolute inset-0 bg-gradient-to-b from-black/10 to-black/40 flex items-center justify-center">
                         <FaFolder className="w-12 h-12 text-white/90" />
                       </div>
@@ -154,7 +150,7 @@ export function VaultSelector({ vaultMemberships, selectedVault, onVaultSelect, 
                         <FaUsers className="w-3 h-3 mr-1" />
                         Shared
                       </Badge>
-                      {selectedVault === membership.vaults.id && (
+                      {selectedVault === vault.id && (
                         <div className="absolute bottom-2 right-2 w-6 h-6 bg-emerald-600 rounded-full flex items-center justify-center">
                           <FaCheck className="w-3 h-3 text-white" />
                         </div>
@@ -162,7 +158,7 @@ export function VaultSelector({ vaultMemberships, selectedVault, onVaultSelect, 
                     </div>
                     <div className="p-4 bg-white dark:bg-gray-800">
                       <p className="font-medium text-gray-900 dark:text-white text-left">
-                        {membership.vaults.name}
+                        {vault.name}
                       </p>
                       <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 text-left">
                         Shared with you
@@ -174,7 +170,7 @@ export function VaultSelector({ vaultMemberships, selectedVault, onVaultSelect, 
             </div>
           )}
 
-          {vaultMemberships.length === 0 && !error && (
+          {vaults.length === 0 && !error && (
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}

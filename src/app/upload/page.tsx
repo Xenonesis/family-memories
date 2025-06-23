@@ -23,24 +23,15 @@ interface Vault {
   color: string;
   created_by: string;
   created_at: string;
+  role: string;
 }
 
 interface VaultMembership {
   role: string;
-  vaults: Vault;
+  vaults: Omit<Vault, 'role'> | null;
 }
 
-interface VaultMembershipResponse {
-  role: string;
-  vaults: {
-    id: string;
-    name: string;
-    description: string | null;
-    color: string;
-    created_at: string;
-    created_by: string;
-  }[];
-}
+
 
 interface UploadedFile {
   id: string;
@@ -57,7 +48,7 @@ export default function UploadPage() {
   const [selectedVault, setSelectedVault] = useState("");
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [isDragging, setIsDragging] = useState(false);
-  const [vaultMemberships, setVaultMemberships] = useState<VaultMembership[]>([]);
+  const [vaults, setVaults] = useState<Vault[]>([]);
   const [user, setUser] = useState<User | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [generalError, setGeneralError] = useState("");
@@ -75,20 +66,17 @@ export default function UploadPage() {
       setUser(currentUser);
       const { data, error: fetchError } = await getUserVaults(currentUser.id);
       if (!fetchError && data) {
-        const validMemberships: VaultMembership[] = [];
-        
-        data.forEach((item: VaultMembershipResponse) => {
-          if (item.vaults && Array.isArray(item.vaults)) {
-            item.vaults.forEach((vault) => {
-              validMemberships.push({
-                role: item.role,
-                vaults: vault
-              });
-            });
-          }
-        });
-        
-        setVaultMemberships(validMemberships);
+        const memberships = data as unknown as VaultMembership[];
+        const fetchedVaults = memberships
+          .map(item => {
+            if (!item.vaults) return null;
+            return {
+              ...item.vaults,
+              role: item.role,
+            };
+          })
+          .filter((v): v is Vault => v !== null);
+        setVaults(fetchedVaults);
       } else if (fetchError) {
         setGeneralError(fetchError.message);
       }
@@ -298,7 +286,7 @@ export default function UploadPage() {
         </motion.div>
 
         <VaultSelector 
-          vaultMemberships={vaultMemberships}
+          vaults={vaults}
           selectedVault={selectedVault}
           onVaultSelect={handleVaultSelect}
           error={generalError}
