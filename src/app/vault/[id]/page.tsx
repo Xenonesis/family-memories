@@ -20,7 +20,7 @@ import RadialOrbitalTimeline from "@/components/ui/radial-orbital-timeline";
 import { motion } from "framer-motion";
 
 interface VaultPageProps {
-  params: Promise<{ id: string }>;
+  params: { id: string };
 }
 
 interface Vault {
@@ -54,9 +54,14 @@ export default function VaultDetailPage({ params }: VaultPageProps) {
   const [filterBy, setFilterBy] = useState<'all' | 'recent' | 'favorites'>('all');
   const [activeTab, setActiveTab] = useState('photos');
   const [isSelectionMode, setIsSelectionMode] = useState(false);
+  const [vaultId, setVaultId] = useState<string>('');
 
-  // Unwrap params using React.use()
-    const { id: vaultId } = React.use(params);
+  // Extract vault ID from params
+  useEffect(() => {
+    if (params?.id) {
+      setVaultId(params.id);
+    }
+  }, [params]);
 
   const timelineData = photos.map((photo, index) => ({
     id: index + 1,
@@ -71,6 +76,8 @@ export default function VaultDetailPage({ params }: VaultPageProps) {
   }));
 
   useEffect(() => {
+    if (!vaultId) return;
+
     const loadVaultData = async () => {
       const currentUser = await getCurrentUser();
       if (!currentUser) {
@@ -82,7 +89,7 @@ export default function VaultDetailPage({ params }: VaultPageProps) {
       const { data: vaultData, error: vaultError } = await supabase
         .from('vaults')
         .select('*')
-        .eq('id', vaultId) // Use vaultId
+        .eq('id', vaultId)
         .single();
 
       if (vaultError) {
@@ -93,7 +100,7 @@ export default function VaultDetailPage({ params }: VaultPageProps) {
       setVault(vaultData);
 
       // Get photos
-      const { data: photosData, error: photosError } = await getVaultPhotos(vaultId); // Use vaultId
+      const { data: photosData, error: photosError } = await getVaultPhotos(vaultId);
       if (!photosError && photosData) {
         setPhotos(photosData);
       }
@@ -102,7 +109,7 @@ export default function VaultDetailPage({ params }: VaultPageProps) {
     };
 
     loadVaultData();
-  }, [vaultId, router]); // Depend on vaultId
+  }, [vaultId, router]);
 
   if (loading) {
     return (
@@ -177,7 +184,7 @@ export default function VaultDetailPage({ params }: VaultPageProps) {
           <Card className="p-12 text-center bg-white/80 dark:bg-gray-800/80 border-0 shadow-md">
             <FaSearch className="w-12 h-12 text-gray-400 mx-auto mb-4" />
             <h3 className="text-xl font-bold mb-2">No Photos Found</h3>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">We couldn&apos;t find any photos matching &quot;{searchQuery}&quot;</p>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">We couldn&apos;t find any photos matching "{searchQuery}"</p>
             <Button variant="outline" onClick={() => setSearchQuery('')}>
               Clear Search
             </Button>
