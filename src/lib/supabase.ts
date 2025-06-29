@@ -1,34 +1,55 @@
 import { createClient } from '@supabase/supabase-js'
 
-// Enhanced configuration with retry logic and better error handling
+// Enhanced configuration with better error handling for missing environment variables
 const getSupabaseConfig = () => {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-  if (typeof window === 'undefined') {
-    // Server-side rendering - check if variables exist but don't throw
-    if (!supabaseUrl || !supabaseAnonKey) {
-      console.warn('Supabase environment variables not set during build time')
-      // Return dummy values for build time
+  // Check if we're in a development environment without proper env vars
+  const isDevelopment = process.env.NODE_ENV === 'development'
+  const isServer = typeof window === 'undefined'
+
+  if (!supabaseUrl || !supabaseAnonKey) {
+    if (isServer) {
+      // Server-side rendering - use placeholder values to allow build to complete
+      console.warn('⚠️ Supabase environment variables not set during build time')
       return {
         url: 'https://placeholder.supabase.co',
-        anonKey: 'placeholder-key'
+        anonKey: 'placeholder-key',
+        isPlaceholder: true
       }
-    }
-  } else {
-    // Client-side - throw error if variables are missing
-    if (!supabaseUrl) {
-      throw new Error('Missing environment variable: NEXT_PUBLIC_SUPABASE_URL')
-    }
-    
-    if (!supabaseAnonKey) {
-      throw new Error('Missing environment variable: NEXT_PUBLIC_SUPABASE_ANON_KEY')
+    } else {
+      // Client-side - provide more helpful error messaging
+      const missingVars = []
+      if (!supabaseUrl) missingVars.push('NEXT_PUBLIC_SUPABASE_URL')
+      if (!supabaseAnonKey) missingVars.push('NEXT_PUBLIC_SUPABASE_ANON_KEY')
+      
+      console.error('🚨 Missing Supabase environment variables:', missingVars.join(', '))
+      console.error('📝 To fix this issue:')
+      console.error('1. Create a .env.local file in your project root')
+      console.error('2. Add the missing environment variables')
+      console.error('3. Restart your development server')
+      console.error('4. For production deployment, set these variables in your hosting platform')
+      
+      if (isDevelopment) {
+        // In development, return placeholder values to prevent app crash
+        console.warn('🔧 Using placeholder values in development mode')
+        return {
+          url: 'https://placeholder.supabase.co',
+          anonKey: 'placeholder-key',
+          isPlaceholder: true
+        }
+      } else {
+        // In production, we need to throw an error
+        throw new Error(`Missing required environment variables: ${missingVars.join(', ')}`)
+      }
     }
   }
 
   return {
     url: supabaseUrl,
-    anonKey: supabaseAnonKey
+    anonKey: supabaseAnonKey,
+    isPlaceholder: false
   }
 }
 
@@ -54,6 +75,9 @@ export const supabase = createClient(config.url, config.anonKey, {
   }
 })
 
+// Flag to indicate if we're using placeholder configuration
+export const isUsingPlaceholderConfig = config.isPlaceholder
+
 // Enhanced connection test with retry logic
 export const testSupabaseConnection = async (retries = 3): Promise<boolean> => {
   // Skip connection test during build time
@@ -62,8 +86,9 @@ export const testSupabaseConnection = async (retries = 3): Promise<boolean> => {
   }
 
   // Skip if using placeholder values
-  if (config.url === 'https://placeholder.supabase.co') {
-    console.warn('Using placeholder Supabase configuration - skipping connection test')
+  if (config.isPlaceholder) {
+    console.warn('⚠️ Using placeholder Supabase configuration - skipping connection test')
+    console.warn('🔧 Please set up your environment variables to enable Supabase functionality')
     return false
   }
 
@@ -102,12 +127,17 @@ export const testSupabaseConnection = async (retries = 3): Promise<boolean> => {
   return false
 }
 
-// Wrapper function for Supabase operations with automatic retry
+// Wrapper function for Supabase operations with automatic retry and placeholder handling
 export const withRetry = async <T>(
   operation: () => Promise<T>,
   retries = 2,
   operationName = 'Supabase operation'
 ): Promise<T> => {
+  // If using placeholder config, return a rejected promise with helpful message
+  if (config.isPlaceholder) {
+    throw new Error(`${operationName} failed: Supabase not configured. Please set up your environment variables.`)
+  }
+
   for (let attempt = 1; attempt <= retries + 1; attempt++) {
     try {
       return await operation()
@@ -141,8 +171,10 @@ export const withRetry = async <T>(
 if (typeof window !== 'undefined') {
   // Test connection after a short delay to allow the app to initialize
   setTimeout(() => {
-    testSupabaseConnection().catch(error => {
-      console.error('Initial Supabase connection test failed:', error)
-    })
+    if (!config.isPlaceholder) {
+      testSupabaseConnection().catch(error => {
+        console.error('Initial Supabase connection test failed:', error)
+      })
+    }
   }, 1000)
 }
