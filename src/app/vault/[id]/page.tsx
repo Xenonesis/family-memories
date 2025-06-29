@@ -16,6 +16,7 @@ import Link from "next/link";
 import { ProfileNav } from "@/components/ProfileNav";
 import { VaultHeader } from "@/components/vault/VaultHeader";
 import { PhotoGrid } from "@/components/vault/PhotoGrid";
+import { PhotoSlideshow } from "@/components/slideshow/PhotoSlideshow";
 import RadialOrbitalTimeline from "@/components/ui/radial-orbital-timeline";
 import { motion } from "framer-motion";
 
@@ -54,6 +55,8 @@ export default function VaultDetailPage({ params }: VaultPageProps) {
   const [filterBy, setFilterBy] = useState<'all' | 'recent' | 'favorites'>('all');
   const [activeTab, setActiveTab] = useState('photos');
   const [isSelectionMode, setIsSelectionMode] = useState(false);
+  const [showSlideshow, setShowSlideshow] = useState(false);
+  const [slideshowStartIndex, setSlideshowStartIndex] = useState(0);
   const [vaultId, setVaultId] = useState<string>('');
 
   // Extract vault ID from params
@@ -142,6 +145,11 @@ export default function VaultDetailPage({ params }: VaultPageProps) {
         ? prev.filter(id => id !== photoId)
         : [...prev, photoId]
     );
+  };
+
+  const startSlideshow = (startIndex: number = 0) => {
+    setSlideshowStartIndex(startIndex);
+    setShowSlideshow(true);
   };
 
   const filteredPhotos = photos
@@ -253,9 +261,14 @@ export default function VaultDetailPage({ params }: VaultPageProps) {
                   >
                     Select
                   </Button>
-                  <Button variant="outline" size="sm">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => startSlideshow(0)}
+                    disabled={filteredPhotos.length === 0}
+                  >
                     <FaExpand className="w-3 h-3 mr-2" />
-                    Fullscreen
+                    Slideshow
                   </Button>
                 </>
               )}
@@ -360,18 +373,53 @@ export default function VaultDetailPage({ params }: VaultPageProps) {
           </TabsContent>
           
           <TabsContent value="slideshow" className="mt-0">
-            <Card className="p-8 text-center bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/10 dark:to-emerald-900/10 border-0 shadow-md">
-              <FaPlay className="w-12 h-12 text-green-500 mx-auto mb-4" />
-              <h3 className="text-xl font-bold mb-2">Slideshow Mode</h3>
-              <p className="text-gray-600 dark:text-gray-400 mb-6">Enjoy your memories in a beautiful slideshow</p>
-              <Button className="bg-green-600 hover:bg-green-700">
-                <FaPlay className="w-4 h-4 mr-2" />
-                Start Slideshow
-              </Button>
-            </Card>
+            {filteredPhotos.length > 0 ? (
+              <Card className="p-8 text-center bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/10 dark:to-emerald-900/10 border-0 shadow-md">
+                <FaPlay className="w-12 h-12 text-green-500 mx-auto mb-4" />
+                <h3 className="text-xl font-bold mb-2">Slideshow Mode</h3>
+                <p className="text-gray-600 dark:text-gray-400 mb-6">Enjoy your memories in a beautiful slideshow</p>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <Button 
+                    className="bg-green-600 hover:bg-green-700"
+                    onClick={() => startSlideshow(0)}
+                  >
+                    <FaPlay className="w-4 h-4 mr-2" />
+                    Start Slideshow
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    onClick={() => startSlideshow(0)}
+                  >
+                    <FaPlay className="w-4 h-4 mr-2" />
+                    Auto-play Slideshow
+                  </Button>
+                </div>
+              </Card>
+            ) : (
+              <Card className="p-8 text-center bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/10 dark:to-emerald-900/10 border-0 shadow-md">
+                <FaPlay className="w-12 h-12 text-green-500 mx-auto mb-4" />
+                <h3 className="text-xl font-bold mb-2">No Photos for Slideshow</h3>
+                <p className="text-gray-600 dark:text-gray-400">Upload some photos to enjoy the slideshow feature.</p>
+              </Card>
+            )}
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Slideshow Modal */}
+      {showSlideshow && (
+        <div className="fixed inset-0 z-50 bg-black">
+          <PhotoSlideshow
+            photos={filteredPhotos}
+            initialIndex={slideshowStartIndex}
+            autoPlay={true}
+            autoPlayInterval={5000}
+            onClose={() => setShowSlideshow(false)}
+            showControls={true}
+            showThumbnails={true}
+          />
+        </div>
+      )}
     </div>
   );
 }
