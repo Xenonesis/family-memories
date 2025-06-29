@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -7,7 +8,7 @@ import { FaUpload, FaShare, FaEdit, FaCog, FaUsers, FaCalendar, FaHeart, FaDownl
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-
+import { supabase } from "@/lib/supabase";
 
 interface Vault {
   id: string;
@@ -23,8 +24,69 @@ interface VaultHeaderProps {
   photoCount: number;
 }
 
+interface VaultStats {
+  totalPhotos: number;
+  storageUsed: string;
+  memberCount: number;
+  recentUploads: number;
+}
+
 export function VaultHeader({ vault, photoCount }: VaultHeaderProps) {
   const router = useRouter();
+  const [stats, setStats] = useState<VaultStats>({
+    totalPhotos: 0,
+    storageUsed: "0 MB",
+    memberCount: 0,
+    recentUploads: 0
+  });
+
+  useEffect(() => {
+    const fetchVaultStats = async () => {
+      try {
+        // Get member count
+        const { count: memberCount } = await supabase
+          .from('vault_members')
+          .select('*', { count: 'exact', head: true })
+          .eq('vault_id', vault.id);
+
+        // Get recent uploads (last 7 days)
+        const weekAgo = new Date();
+        weekAgo.setDate(weekAgo.getDate() - 7);
+        
+        const { count: recentCount } = await supabase
+          .from('photos')
+          .select('*', { count: 'exact', head: true })
+          .eq('vault_id', vault.id)
+          .gte('created_at', weekAgo.toISOString());
+
+        // Calculate storage used (estimate based on photo count)
+        const estimatedStorageMB = photoCount * 2.5; // Assume 2.5MB per photo average
+        const storageUsed = estimatedStorageMB > 1024 
+          ? `${(estimatedStorageMB / 1024).toFixed(1)} GB`
+          : `${estimatedStorageMB.toFixed(0)} MB`;
+
+        setStats({
+          totalPhotos: photoCount,
+          storageUsed,
+          memberCount: memberCount || 1,
+          recentUploads: recentCount || 0
+        });
+      } catch (error) {
+        console.error('Error fetching vault stats:', error);
+        // Set fallback values
+        setStats({
+          totalPhotos: photoCount,
+          storageUsed: `${(photoCount * 2.5).toFixed(0)} MB`,
+          memberCount: 1,
+          recentUploads: 0
+        });
+      }
+    };
+
+    if (vault.id) {
+      fetchVaultStats();
+    }
+  }, [vault.id, photoCount]);
   
   return (
     <div className={`${vault.color} text-white relative overflow-hidden`}>
@@ -81,7 +143,7 @@ export function VaultHeader({ vault, photoCount }: VaultHeaderProps) {
             <div className="flex flex-wrap items-center gap-4">
               <Badge className="bg-white/20 text-white border-white/30 hover:bg-white/30 transition-colors px-4 py-2 text-sm">
                 <FaUsers className="w-4 h-4 mr-2" />
-                {photoCount} Photos
+                {stats.totalPhotos} Photos
               </Badge>
               <Badge className="bg-white/20 text-white border-white/30 hover:bg-white/30 transition-colors px-4 py-2 text-sm">
                 <FaCalendar className="w-4 h-4 mr-2" />
@@ -146,7 +208,7 @@ export function VaultHeader({ vault, photoCount }: VaultHeaderProps) {
           </motion.div>
         </div>
         
-        {/* Quick Stats */}
+        {/* Quick Stats - Now showing real data */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -154,22 +216,22 @@ export function VaultHeader({ vault, photoCount }: VaultHeaderProps) {
           className="mt-8 grid grid-cols-2 sm:grid-cols-4 gap-4"
         >
           <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white p-4">
-            <div className="text-2xl font-bold">{photoCount}</div>
+            <div className="text-2xl font-bold">{stats.totalPhotos}</div>
             <div className="text-sm text-white/80">Total Photos</div>
           </Card>
           
           <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white p-4">
-            <div className="text-2xl font-bold">2.4GB</div>
+            <div className="text-2xl font-bold">{stats.storageUsed}</div>
             <div className="text-sm text-white/80">Storage Used</div>
           </Card>
           
           <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white p-4">
-            <div className="text-2xl font-bold">5</div>
+            <div className="text-2xl font-bold">{stats.memberCount}</div>
             <div className="text-sm text-white/80">Contributors</div>
           </Card>
           
           <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white p-4">
-            <div className="text-2xl font-bold">12</div>
+            <div className="text-2xl font-bold">{stats.recentUploads}</div>
             <div className="text-sm text-white/80">This Week</div>
           </Card>
         </motion.div>

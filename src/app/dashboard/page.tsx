@@ -99,16 +99,36 @@ export default function DashboardPage() {
     return filtered;
   }, [recentPhotos, searchQuery, selectedFilter]);
 
-  const calculateStats = (photosData: Photo[], vaultsData: Vault[]) => {
+  const calculateStats = async (photosData: Photo[], vaultsData: Vault[], userId: string) => {
     const weekAgo = new Date();
     weekAgo.setDate(weekAgo.getDate() - 7);
     
+    // Calculate recent uploads from actual data
+    const recentUploads = photosData.filter(p => new Date(p.created_at) > weekAgo).length;
+    
+    // Calculate storage used (estimate: 2.5MB per photo)
+    const storageUsedMB = photosData.length * 2.5;
+    
+    // Get actual member count across all vaults
+    let totalMembers = 0;
+    try {
+      const { count } = await supabase
+        .from('vault_members')
+        .select('user_id', { count: 'exact', head: true })
+        .in('vault_id', vaultsData.map(v => v.id));
+      
+      totalMembers = count || Math.max(1, vaultsData.length);
+    } catch (error) {
+      console.error('Error fetching member count:', error);
+      totalMembers = Math.max(1, vaultsData.length);
+    }
+
     setDashboardStats({
       totalPhotos: photosData.length,
       totalVaults: vaultsData.length,
-      totalMembers: Math.max(1, vaultsData.length * 2),
-      storageUsed: Math.min(photosData.length * 2.5, 100),
-      recentUploads: photosData.filter(p => new Date(p.created_at) > weekAgo).length
+      totalMembers,
+      storageUsed: storageUsedMB,
+      recentUploads
     });
   };
 
@@ -157,14 +177,14 @@ export default function DashboardPage() {
 
           if (photosData) {
             setRecentPhotos(photosData);
-            calculateStats(photosData, vaultsWithCounts);
+            await calculateStats(photosData, vaultsWithCounts, currentUser.id);
           } else {
-            calculateStats([], vaultsWithCounts);
+            await calculateStats([], vaultsWithCounts, currentUser.id);
           }
         } else {
           setVaults([]);
           setRecentPhotos([]);
-          calculateStats([], []);
+          await calculateStats([], [], currentUser.id);
         }
       }
       

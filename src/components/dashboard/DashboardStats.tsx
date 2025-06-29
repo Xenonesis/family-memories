@@ -18,12 +18,50 @@ interface DashboardStatsProps {
 }
 
 export function DashboardStatsGrid({ stats }: DashboardStatsProps) {
+  // Format storage used as a percentage with proper display
+  const formatStorageUsed = (storageUsed: number) => {
+    if (storageUsed >= 1024) {
+      return `${(storageUsed / 1024).toFixed(1)}GB`;
+    }
+    return `${storageUsed.toFixed(0)}MB`;
+  };
+
   const statsData = [
-    { label: 'Vaults', value: stats.totalVaults, icon: FaFolder, color: 'from-purple-500 to-pink-500', hoverColor: 'from-purple-600 to-pink-600' },
-    { label: 'Photos', value: stats.totalPhotos, icon: FaImage, color: 'from-emerald-500 to-teal-500', hoverColor: 'from-emerald-600 to-teal-600' },
-    { label: 'Members', value: stats.totalMembers, icon: FaUsers, color: 'from-blue-500 to-indigo-500', hoverColor: 'from-blue-600 to-indigo-600' },
-    { label: 'Storage', value: `${stats.storageUsed.toFixed(0)}%`, icon: FaCloud, color: 'from-orange-500 to-red-500', hoverColor: 'from-orange-600 to-red-600' },
-    { label: 'Recent', value: stats.recentUploads, icon: IoMdTrendingUp, color: 'from-cyan-500 to-blue-500', hoverColor: 'from-cyan-600 to-blue-600' }
+    { 
+      label: 'Vaults', 
+      value: stats.totalVaults, 
+      icon: FaFolder, 
+      color: 'from-purple-500 to-pink-500', 
+      hoverColor: 'from-purple-600 to-pink-600' 
+    },
+    { 
+      label: 'Photos', 
+      value: stats.totalPhotos, 
+      icon: FaImage, 
+      color: 'from-emerald-500 to-teal-500', 
+      hoverColor: 'from-emerald-600 to-teal-600' 
+    },
+    { 
+      label: 'Members', 
+      value: stats.totalMembers, 
+      icon: FaUsers, 
+      color: 'from-blue-500 to-indigo-500', 
+      hoverColor: 'from-blue-600 to-indigo-600' 
+    },
+    { 
+      label: 'Storage', 
+      value: formatStorageUsed(stats.storageUsed), 
+      icon: FaCloud, 
+      color: 'from-orange-500 to-red-500', 
+      hoverColor: 'from-orange-600 to-red-600' 
+    },
+    { 
+      label: 'Recent', 
+      value: stats.recentUploads, 
+      icon: IoMdTrendingUp, 
+      color: 'from-cyan-500 to-blue-500', 
+      hoverColor: 'from-cyan-600 to-blue-600' 
+    }
   ];
 
   const container = {
