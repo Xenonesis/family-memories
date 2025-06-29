@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FaImage, FaArrowLeft } from "react-icons/fa";
 import Link from "next/link";
+import { UserVaultResponse, PhotoCount } from '@/lib/types';
 
 interface Photo {
   id: string;
@@ -28,6 +29,7 @@ interface Vault {
   color: string;
   created_at: string;
   created_by: string;
+  photos: PhotoCount[];
 }
 
 export default function SlideshowTestPage() {
@@ -64,17 +66,12 @@ export default function SlideshowTestPage() {
       }
 
       if (vaultData && vaultData.length > 0) {
-        const userVaults = vaultData.flatMap((item: any) => item.vaults);
+        const userVaults = (vaultData as UserVaultResponse[]).map(item => item.vaults);
         setVaults(userVaults);
         
         // Auto-select first vault with photos
         for (const vault of userVaults) {
-          const { count } = await supabase
-            .from('photos')
-            .select('*', { count: 'exact', head: true })
-            .eq('vault_id', vault.id);
-          
-          if (count && count > 0) {
+          if (vault.photos[0]?.count && vault.photos[0].count > 0) {
             setSelectedVaultId(vault.id);
             break;
           }

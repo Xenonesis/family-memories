@@ -1,5 +1,6 @@
 import { supabase, withRetry } from './supabase'
 import type { Database } from './types'
+import type { UserVaultResponse } from './types'
 
 // Enhanced database operations with automatic retry logic
 export const db = {
@@ -45,18 +46,6 @@ export const db = {
 
   // Vaults operations
   vaults: {
-    async list(userId: string) {
-      return withRetry(
-        () => supabase
-          .from('vaults')
-          .select('*')
-          .eq('user_id', userId)
-          .order('created_at', { ascending: false }),
-        2,
-        'List vaults'
-      )
-    },
-
     async get(vaultId: string) {
       return withRetry(
         () => supabase
@@ -168,6 +157,44 @@ export const db = {
       )
     }
   }
+}
+
+// Get user vaults through vault_members table
+export const getUserVaults = async (userId: string) => {
+  return withRetry(
+    () => supabase
+      .from('vault_members')
+      .select('role, vaults(*, photos(count))')
+      .eq('user_id', userId)
+      .order('created_at', { foreignTable: 'vaults', ascending: false }),
+    2,
+    'Get user vaults'
+  )
+}
+
+// Upload photo function
+export const uploadPhoto = async (
+  vaultId: string,
+  userId: string,
+  title: string,
+  description: string,
+  fileUrl: string
+) => {
+  return withRetry(
+    () => supabase
+      .from('photos')
+      .insert({
+        vault_id: vaultId,
+        uploaded_by: userId,
+        title,
+        description,
+        file_url: fileUrl
+      })
+      .select()
+      .single(),
+    2,
+    'Upload photo'
+  )
 }
 
 // Health check function

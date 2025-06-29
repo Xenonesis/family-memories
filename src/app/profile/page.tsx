@@ -7,7 +7,7 @@ import { getProfile, updateProfile } from "@/lib/profile";
 import { supabase } from "@/lib/supabase";
 import { getUserVaults } from "@/lib/database";
 import { ProfileLayout } from "@/components/profile/ProfileLayout";
-import { VaultMember } from '@/lib/types';
+import { UserVaultResponse } from '@/lib/types';
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -57,15 +57,9 @@ export default function ProfilePage() {
       if (vaultsError) {
         console.error('Error fetching user vaults:', vaultsError);
       } else if (vaultMembers) {
-        const totalPhotos = (vaultMembers as VaultMember[]).reduce((acc, member) => {
-          if (member.vaults && Array.isArray(member.vaults)) {
-            const memberPhotoCount = member.vaults.reduce((vaultAcc, vault) => {
-              if (vault && vault.photos && vault.photos.length > 0) {
-                return vaultAcc + (vault.photos[0].count || 0);
-              }
-              return vaultAcc;
-            }, 0);
-            return acc + memberPhotoCount;
+        const totalPhotos = (vaultMembers as UserVaultResponse[]).reduce((acc, member) => {
+          if (member.vaults && member.vaults.photos && member.vaults.photos.length > 0) {
+            return acc + (member.vaults.photos[0].count || 0);
           }
           return acc;
         }, 0);

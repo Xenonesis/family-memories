@@ -7,6 +7,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { getUserVaults } from "@/lib/database";
 import { supabase } from "@/lib/supabase";
 import { User } from '@supabase/auth-js/dist/module/lib/types';
+import { UserVaultResponse } from '@/lib/types';
 import { ProfileNav } from "@/components/ProfileNav";
 
 interface Vault {
@@ -16,18 +17,6 @@ interface Vault {
   color: string;
   created_at: string;
   owner_id: string;
-}
-
-interface UserVaultLinkRaw {
-  role: string;
-  vaults: {
-    id: string;
-    name: string;
-    description?: string;
-    color: string;
-    created_at: string;
-    created_by: string;
-  }[];
 }
 
 export default function DebugPage() {
@@ -76,14 +65,14 @@ export default function DebugPage() {
       if (error) throw error;
       
       // Map the raw data structure to the expected Vault[] state
-      setVaults(data?.flatMap((item: UserVaultLinkRaw) => item.vaults.map(vaultRaw => ({
-        id: vaultRaw.id,
-        name: vaultRaw.name,
-        description: vaultRaw.description,
-        color: vaultRaw.color,
-        created_at: vaultRaw.created_at,
-        owner_id: vaultRaw.created_by,
-      } as Vault))) || []);
+      setVaults(data?.map((item: UserVaultResponse) => ({
+        id: item.vaults.id,
+        name: item.vaults.name,
+        description: item.vaults.description,
+        color: item.vaults.color,
+        created_at: item.vaults.created_at,
+        owner_id: item.vaults.created_by,
+      } as Vault)) || []);
       
       addResult(`✅ Vaults fetched: ${data?.length || 0} memberships`);
     } catch (error: unknown) {

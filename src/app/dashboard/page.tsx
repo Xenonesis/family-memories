@@ -14,9 +14,10 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
-import { db } from "@/lib/database";
+import { getUserVaults } from "@/lib/database";
 import { supabase } from "@/lib/supabase";
 import { User } from '@supabase/auth-js/dist/module/lib/types';
+import { UserVaultResponse } from '@/lib/types';
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { DashboardStatsGrid } from "@/components/dashboard/DashboardStats";
 import { VaultsSection } from "@/components/dashboard/VaultsSection";
@@ -24,19 +25,16 @@ import { RecentPhotos } from "@/components/dashboard/RecentPhotos";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { DashboardBackground } from "@/components/ui/dashboard-background";
 
-// Vault data structure as it is returned by db.vaults.list
-interface VaultFromDB {
+// The Vault type used in the component state, which includes the photo count and role
+interface Vault {
   id: string;
   name: string;
   description?: string;
   color: string;
   created_at: string;
   created_by: string;
-}
-
-// The Vault type used in the component state, which includes the photo count
-interface Vault extends VaultFromDB {
   photo_count: number;
+  role: string;
 }
 
 interface Photo {
@@ -46,12 +44,6 @@ interface Photo {
   created_at: string;
   vault_id: string;
   vaults?: { name: string };
-}
-
-// Type for the data structure returned by db.vaults.list
-interface UserVaultLinkFromDB {
-  role: string;
-  vaults: VaultFromDB[];
 }
 
 interface DashboardStats {
@@ -148,24 +140,23 @@ export default function DashboardPage() {
       
       setUser(currentUser);
       
-      const { data: vaultData } = await db.vaults.list(currentUser.id);
+      const { data: vaultData } = await getUserVaults(currentUser.id);
       if (vaultData) {
-        const userVaults = (vaultData as UserVaultLinkFromDB[]).flatMap(item => item.vaults);
+        const userVaults = (vaultData as UserVaultResponse[]).map(item => ({
+          id: item.vaults.id,
+          name: item.vaults.name,
+          description: item.vaults.description,
+          color: item.vaults.color,
+          created_at: item.vaults.created_at,
+          created_by: item.vaults.created_by,
+          photo_count: item.vaults.photos[0]?.count || 0,
+          role: item.role
+        }));
+
+        setVaults(userVaults);
 
         if (userVaults.length > 0) {
           const vaultIds = userVaults.map(v => v.id);
-
-          // Fetch photo counts for each vault
-          const photoCountsPromises = userVaults.map(async (vault) => {
-            const { count } = await supabase
-              .from('photos')
-              .select('*', { count: 'exact', head: true })
-              .eq('vault_id', vault.id);
-            return { ...vault, photo_count: count || 0 };
-          });
-
-          const vaultsWithCounts = await Promise.all(photoCountsPromises);
-          setVaults(vaultsWithCounts);
 
           // Fetch recent photos for the dashboard
           const { data: photosData } = await supabase
@@ -177,9 +168,9 @@ export default function DashboardPage() {
 
           if (photosData) {
             setRecentPhotos(photosData);
-            await calculateStats(photosData, vaultsWithCounts, currentUser.id);
+            await calculateStats(photosData, userVaults, currentUser.id);
           } else {
-            await calculateStats([], vaultsWithCounts, currentUser.id);
+            await calculateStats([], userVaults, currentUser.id);
           }
         } else {
           setVaults([]);

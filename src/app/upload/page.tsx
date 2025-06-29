@@ -15,6 +15,7 @@ import { FileUploadArea } from "@/components/upload/FileUploadArea";
 import { FileList } from "@/components/upload/FileList";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import { UserVaultResponse } from '@/lib/types';
 
 interface Vault {
   id: string;
@@ -25,13 +26,6 @@ interface Vault {
   created_at: string;
   role: string;
 }
-
-interface VaultMembership {
-  role: string;
-  vaults: Omit<Vault, 'role'> | null;
-}
-
-
 
 interface UploadedFile {
   id: string;
@@ -66,16 +60,15 @@ export default function UploadPage() {
       setUser(currentUser);
       const { data, error: fetchError } = await getUserVaults(currentUser.id);
       if (!fetchError && data) {
-        const memberships = data as unknown as VaultMembership[];
-        const fetchedVaults = memberships
-          .map(item => {
-            if (!item.vaults) return null;
-            return {
-              ...item.vaults,
-              role: item.role,
-            };
-          })
-          .filter((v): v is Vault => v !== null);
+        const fetchedVaults = (data as UserVaultResponse[]).map(item => ({
+          id: item.vaults.id,
+          name: item.vaults.name,
+          description: item.vaults.description,
+          color: item.vaults.color,
+          created_by: item.vaults.created_by,
+          created_at: item.vaults.created_at,
+          role: item.role,
+        }));
         setVaults(fetchedVaults);
       } else if (fetchError) {
         setGeneralError(fetchError.message);
