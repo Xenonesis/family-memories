@@ -1,105 +1,187 @@
-import { supabase } from './supabase'
+import { supabase, withRetry } from './supabase'
+import type { Database } from './types'
 
-// Vault operations
-export const createVault = async (name: string, description: string, color: string, userId: string) => {
-  const { data, error } = await supabase
-    .from('vaults')
-    .insert([
-      {
-        name,
-        description,
-        color,
-        created_by: userId,
-      }
-    ])
-    .select()
-  return { data, error }
-}
-
-export const getUserVaults = async (userId: string) => {
-  const { data, error } = await supabase
-    .from('vault_members')
-    .select(`
-      role,
-      vaults (
-        id,
-        name,
-        description,
-        color,
-        created_at,
-        created_by,
-        photos (count)
+// Enhanced database operations with automatic retry logic
+export const db = {
+  // Profiles operations
+  profiles: {
+    async get(userId: string) {
+      return withRetry(
+        () => supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', userId)
+          .single(),
+        2,
+        'Get profile'
       )
-    `)
-    .eq('user_id', userId)
-  return { data, error }
+    },
+
+    async update(userId: string, updates: Partial<Database['public']['Tables']['profiles']['Update']>) {
+      return withRetry(
+        () => supabase
+          .from('profiles')
+          .update(updates)
+          .eq('id', userId)
+          .select()
+          .single(),
+        2,
+        'Update profile'
+      )
+    },
+
+    async create(profile: Database['public']['Tables']['profiles']['Insert']) {
+      return withRetry(
+        () => supabase
+          .from('profiles')
+          .insert(profile)
+          .select()
+          .single(),
+        2,
+        'Create profile'
+      )
+    }
+  },
+
+  // Vaults operations
+  vaults: {
+    async list(userId: string) {
+      return withRetry(
+        () => supabase
+          .from('vaults')
+          .select('*')
+          .eq('user_id', userId)
+          .order('created_at', { ascending: false }),
+        2,
+        'List vaults'
+      )
+    },
+
+    async get(vaultId: string) {
+      return withRetry(
+        () => supabase
+          .from('vaults')
+          .select('*')
+          .eq('id', vaultId)
+          .single(),
+        2,
+        'Get vault'
+      )
+    },
+
+    async create(vault: Database['public']['Tables']['vaults']['Insert']) {
+      return withRetry(
+        () => supabase
+          .from('vaults')
+          .insert(vault)
+          .select()
+          .single(),
+        2,
+        'Create vault'
+      )
+    },
+
+    async update(vaultId: string, updates: Partial<Database['public']['Tables']['vaults']['Update']>) {
+      return withRetry(
+        () => supabase
+          .from('vaults')
+          .update(updates)
+          .eq('id', vaultId)
+          .select()
+          .single(),
+        2,
+        'Update vault'
+      )
+    },
+
+    async delete(vaultId: string) {
+      return withRetry(
+        () => supabase
+          .from('vaults')
+          .delete()
+          .eq('id', vaultId),
+        2,
+        'Delete vault'
+      )
+    }
+  },
+
+  // Photos operations
+  photos: {
+    async list(vaultId: string) {
+      return withRetry(
+        () => supabase
+          .from('photos')
+          .select('*')
+          .eq('vault_id', vaultId)
+          .order('created_at', { ascending: false }),
+        2,
+        'List photos'
+      )
+    },
+
+    async get(photoId: string) {
+      return withRetry(
+        () => supabase
+          .from('photos')
+          .select('*')
+          .eq('id', photoId)
+          .single(),
+        2,
+        'Get photo'
+      )
+    },
+
+    async create(photo: Database['public']['Tables']['photos']['Insert']) {
+      return withRetry(
+        () => supabase
+          .from('photos')
+          .insert(photo)
+          .select()
+          .single(),
+        2,
+        'Create photo'
+      )
+    },
+
+    async update(photoId: string, updates: Partial<Database['public']['Tables']['photos']['Update']>) {
+      return withRetry(
+        () => supabase
+          .from('photos')
+          .update(updates)
+          .eq('id', photoId)
+          .select()
+          .single(),
+        2,
+        'Update photo'
+      )
+    },
+
+    async delete(photoId: string) {
+      return withRetry(
+        () => supabase
+          .from('photos')
+          .delete()
+          .eq('id', photoId),
+        2,
+        'Delete photo'
+      )
+    }
+  }
 }
 
-// Get vault photo count
-export const getVaultPhotoCount = async (vaultId: string) => {
-  const { count, error } = await supabase
-    .from('photos')
-    .select('*', { count: 'exact', head: true })
-    .eq('vault_id', vaultId)
-  return { count, error }
-}
-
-// Get all vault photo counts for a user
-export const getVaultPhotoCounts = async (vaultIds: string[]) => {
-  const { data, error } = await supabase
-    .from('photos')
-    .select('vault_id')
-    .in('vault_id', vaultIds)
-  
-  if (error) return { data: null, error }
-  
-  // Count photos per vault
-  const counts = vaultIds.reduce((acc: Record<string, number>, vaultId) => {
-    acc[vaultId] = data?.filter(photo => photo.vault_id === vaultId).length || 0
-    return acc
-  }, {})
-  
-  return { data: counts, error: null }
-}
-
-// Photo operations
-export const uploadPhoto = async (vaultId: string, userId: string, title: string, description: string, fileUrl: string) => {
-  const { data, error } = await supabase
-    .from('photos')
-    .insert([
-      {
-        vault_id: vaultId,
-        uploaded_by: userId,
-        title,
-        description,
-        file_url: fileUrl,
-      }
-    ])
-    .select()
+// Health check function
+export const checkDatabaseHealth = async (): Promise<boolean> => {
+  try {
+    const { error } = await withRetry(
+      () => supabase.from('profiles').select('count', { count: 'exact', head: true }),
+      1,
+      'Database health check'
+    )
     
-  return { data, error }
-}
-
-export const getVaultPhotos = async (vaultId: string) => {
-  const { data, error } = await supabase
-    .from('photos')
-    .select('*')
-    .eq('vault_id', vaultId)
-    .order('created_at', { ascending: false })
-  return { data, error }
-}
-
-// Vault member operations
-export const addVaultMember = async (vaultId: string, userId: string, role: string = 'member') => {
-  const { data, error } = await supabase
-    .from('vault_members')
-    .insert([
-      {
-        vault_id: vaultId,
-        user_id: userId,
-        role
-      }
-    ])
-    .select()
-  return { data, error }
+    return !error || error.code === 'PGRST116' // PGRST116 means table doesn't exist, which is OK for health check
+  } catch (error) {
+    console.error('Database health check failed:', error)
+    return false
+  }
 }

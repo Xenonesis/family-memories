@@ -1,26 +1,30 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
+import { ErrorBoundary } from "@/components/ui/error-boundary";
 
-const geistSans = Geist({
+const geistSans = localFont({
+  src: "./fonts/GeistVF.woff2",
   variable: "--font-geist-sans",
-  subsets: ["latin"],
+  weight: "100 900",
 });
-
-const geistMono = Geist_Mono({
+const geistMono = localFont({
+  src: "./fonts/GeistMonoVF.woff2",
   variable: "--font-geist-mono",
-  subsets: ["latin"],
+  weight: "100 900",
 });
 
 export const metadata: Metadata = {
   title: "Family Memories - Preserve Your Precious Moments",
-  description: "Create beautiful collections of your family memories. Share, organize, and preserve your precious moments with our intuitive platform.",
-};
-
-export const viewport = {
-  width: 'device-width',
-  initialScale: 1,
+  description: "A secure platform to store, organize, and share your family photos and memories with loved ones.",
+  keywords: "family photos, memories, photo storage, family vault, photo sharing",
+  authors: [{ name: "Family Memories Team" }],
+  openGraph: {
+    title: "Family Memories - Preserve Your Precious Moments",
+    description: "A secure platform to store, organize, and share your family photos and memories with loved ones.",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
@@ -30,19 +34,19 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head></head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        suppressHydrationWarning
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          {children}
-        </ThemeProvider>
+        <ErrorBoundary>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            {children}
+          </ThemeProvider>
+        </ErrorBoundary>
       </body>
     </html>
   );
