@@ -14,7 +14,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
-import { getUserVaults } from "@/lib/database";
+import { db } from "@/lib/database";
 import { supabase } from "@/lib/supabase";
 import { User } from '@supabase/auth-js/dist/module/lib/types';
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
@@ -24,7 +24,7 @@ import { RecentPhotos } from "@/components/dashboard/RecentPhotos";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { DashboardBackground } from "@/components/ui/dashboard-background";
 
-// Vault data structure as it is returned by getUserVaults
+// Vault data structure as it is returned by db.vaults.list
 interface VaultFromDB {
   id: string;
   name: string;
@@ -48,7 +48,7 @@ interface Photo {
   vaults?: { name: string };
 }
 
-// Type for the data structure returned by getUserVaults
+// Type for the data structure returned by db.vaults.list
 interface UserVaultLinkFromDB {
   role: string;
   vaults: VaultFromDB[];
@@ -148,7 +148,7 @@ export default function DashboardPage() {
       
       setUser(currentUser);
       
-      const { data: vaultData } = await getUserVaults(currentUser.id);
+      const { data: vaultData } = await db.vaults.list(currentUser.id);
       if (vaultData) {
         const userVaults = (vaultData as UserVaultLinkFromDB[]).flatMap(item => item.vaults);
 
